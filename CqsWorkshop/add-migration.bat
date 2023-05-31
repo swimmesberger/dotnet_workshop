@@ -1,0 +1,1 @@
+dotnet ef migrations add %1 -p "CqsWorkshop.Infrastructure" -s "CqsWorkshop.Api"
