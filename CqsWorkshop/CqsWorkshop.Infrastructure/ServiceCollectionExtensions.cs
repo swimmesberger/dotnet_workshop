@@ -1,4 +1,6 @@
-﻿using CqsWorkshop.Infrastructure.Database;
+﻿using CqsWorkshop.Infrastructure.Behaviours;
+using CqsWorkshop.Infrastructure.Database;
+using Mediator;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,6 +12,7 @@ public static class ServiceCollectionExtensions {
         services.AddDbContext<OrderManagementDbContext>(options => 
             options.UseSqlServer(configuration.GetConnectionString("OrderDatabase")));
         services.AddMediator();
+        services.AddSingleton(typeof(IPipelineBehavior<,>), typeof(TransactionCommandBehavior<,>));
         return services;
     }
     

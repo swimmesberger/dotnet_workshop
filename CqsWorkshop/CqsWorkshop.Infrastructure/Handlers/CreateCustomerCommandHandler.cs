@@ -1,10 +1,12 @@
 ﻿using CqsWorkshop.Contract.Commands;
+using CqsWorkshop.Infrastructure.Behaviours;
 using CqsWorkshop.Infrastructure.Database;
 using CqsWorkshop.Infrastructure.Mappings;
 using Mediator;
 
-namespace CqsWorkshop.Infrastructure; 
+namespace CqsWorkshop.Infrastructure.Handlers; 
 
+[Transactional]
 public sealed class CreateCustomerCommandHandler : ICommandHandler<CreateCustomerCommand> {
     private readonly OrderManagementDbContext _dbContext;
 

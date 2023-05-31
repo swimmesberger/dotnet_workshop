@@ -5,7 +5,7 @@ using CqsWorkshop.Infrastructure.Mappings;
 using Mediator;
 using Microsoft.EntityFrameworkCore;
 
-namespace CqsWorkshop.Infrastructure; 
+namespace CqsWorkshop.Infrastructure.Handlers; 
 
 public sealed class GetCustomerByIdQueryHandler : IQueryHandler<GetCustomerByIdQuery, CustomerDto?> {
     private readonly OrderManagementDbContext _dbContext;
@@ -15,7 +15,9 @@ public sealed class GetCustomerByIdQueryHandler : IQueryHandler<GetCustomerByIdQ
     }
 
     public async ValueTask<CustomerDto?> Handle(GetCustomerByIdQuery query, CancellationToken cancellationToken) {
-        return await _dbContext.Customers.Where(c => c.Id == query.Id).ProjectToDto()
+        return await _dbContext.Customers
+            .Where(c => c.Id == query.Id)
+            .ProjectToDto()
             .FirstOrDefaultAsync(cancellationToken);
     }
 }

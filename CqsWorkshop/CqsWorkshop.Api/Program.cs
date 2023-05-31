@@ -1,8 +1,5 @@
-using CqsWorkshop.Contract;
-using CqsWorkshop.Contract.Commands;
-using CqsWorkshop.Contract.Queries;
+using CqsWorkshop.Api;
 using CqsWorkshop.Infrastructure;
-using Mediator;
 using Microsoft.AspNetCore.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -29,17 +26,7 @@ if (app.Environment.IsDevelopment()) {
 }
 
 app.Services.UseInfrastructure();
-
-app.MapGet("/customer/{id:guid}", async (Guid id, IMediator mediator, 
-    CancellationToken cts) => await mediator.Send(new GetCustomerByIdQuery(id), cts)).WithName("GetCustomerById");
-app.MapPost("/customer", async (CustomerForCreationDto customer, IMediator mediator, 
-    CancellationToken cts) => {
-    await mediator.Send(new CreateCustomerCommand(customer), cts);
-    return Results.CreatedAtRoute(
-        routeName: "GetCustomerById",
-        routeValues: new { id = customer.Id  });
-});
-
+app.UseCustomerApi();
 app.Run();
 
 static void ConfigureJson(JsonSerializerOptions serializerOptions) {
