@@ -1,0 +1,10 @@
+﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=8bd74c8b_002Dfd2d_002D4895_002D84ca_002Df0e2ce2c4277/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="TestWeatherForcecast" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;xUnit::269C148B-2070-4AB9-BAAD-E59E09E89E98::net8.0::CoolNewProject.Test.WeatherForecast.WeatherForecastServiceTest.TestWeatherForecast&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::269C148B-2070-4AB9-BAAD-E59E09E89E98::net8.0::CoolNewProject.Test.WeatherForecast.WeatherForecastControllerTest.ReturnsSeedContributorGivenId1&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::269C148B-2070-4AB9-BAAD-E59E09E89E98::net8.0::CoolNewProject.Test.WeatherForecast.WeatherForecastControllerTest&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::076CEE61-5771-4376-B9A5-4CAA1ED560D0::net8.0::CoolNewProject.IntegrationTests.WeatherForecast.WeatherForecastControllerTest&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::269C148B-2070-4AB9-BAAD-E59E09E89E98::net8.0::CoolNewProject.UnitTests.WeatherForecast.WeatherForecastControllerTest.ReturnsSeedForecasts&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
+&lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

@@ -1,0 +1,6 @@
+@CoolNewProject_HostAddress = http://localhost:5167
+
+GET {{CoolNewProject_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
