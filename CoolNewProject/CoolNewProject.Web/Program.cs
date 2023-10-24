@@ -1,15 +1,13 @@
 using CoolNewProject.Domain;
 using CoolNewProject.Infrastructure;using CoolNewProject.Web;
+using CoolNewProject.Web.MinimalApi;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Identity.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers(x => {
-    x.ReturnHttpNotAcceptable = true;
-    x.RespectBrowserAcceptHeader = true;
-});
+builder.Services.AddEndpoints();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
 builder.Services.AddAuthorization();
@@ -31,7 +29,7 @@ if (app.Environment.IsDevelopment()) {
 
 app.UseHttpsRedirection();
 app.UseRouting();
-app.MapControllers();
+app.MapEndpoints();
 if (!app.Environment.IsEnvironment("Testing")) {
     // check and add seed data
     SeedData.Init(app.Services);

@@ -13,7 +13,17 @@ public static class RepositoryExtensions {
         CancellationToken cancellationToken = default) where TEntity : IAggregateRoot {
         return repository.ListAsync(new ProjectionSpecification<TEntity, TResult>(projection), cancellationToken);
     }
-
+    
+    public static Task<T?> FirstOrDefaultAsync<T>(this IReadOnlyRepository<T> repository, CancellationToken cancellationToken = default) 
+        where T : IAggregateRoot {
+        return repository.FirstOrDefaultAsync(new AllSpecification<T>(), cancellationToken);
+    }
+    
+    public static Task<TResult?> FirstOrDefaultAsync<TEntity, TResult>(this IReadOnlyRepository<TEntity> repository, Expression<Func<TEntity, TResult>> projection, 
+        CancellationToken cancellationToken = default) where TEntity : IAggregateRoot {
+        return repository.FirstOrDefaultAsync(new ProjectionSpecification<TEntity, TResult>(projection), cancellationToken);
+    }
+    
     private class AllSpecification<T> : Specification<T, T>{}
 
     private class ProjectionSpecification<TEntity, TResult> : Specification<TEntity, TResult> {

@@ -1,9 +1,13 @@
-﻿using CoolNewProject.Domain.WeatherForecast.Contracts;
+﻿using System.Linq.Expressions;
+using CoolNewProject.Domain.WeatherForecast.Contracts;
 using CoolNewProject.Domain.WeatherForecast.Repositories;
 
 namespace CoolNewProject.Domain.WeatherForecast.Services; 
 
 public class WeatherForecastService : IWeatherForecastService {
+    private static Expression<Func<WeatherForecastEntity, WeatherForecastDto>> MapDto => 
+        entity => new WeatherForecastDto(entity.Id, entity.Date, entity.TemperatureC, entity.Summary, entity.CreatedAt);
+    
     private readonly IWeatherForecastRepository _repository;
     
     public WeatherForecastService(IWeatherForecastRepository repository) {
@@ -11,7 +15,10 @@ public class WeatherForecastService : IWeatherForecastService {
     }
     
     public async Task<List<WeatherForecastDto>> GetForecasts(CancellationToken cancellationToken = default) {
-        return await _repository.ListAsync(entity => 
-            new WeatherForecastDto(entity.Id, entity.Date, entity.TemperatureC, entity.Summary, entity.CreatedAt), cancellationToken);
+        return await _repository.ListAsync(MapDto, cancellationToken);
+    }
+
+    public async Task<WeatherForecastDto?> GetForecastById(Guid id, CancellationToken cancellationToken = default) {
+        return await _repository.FirstOrDefaultAsync(MapDto, cancellationToken);
     }
 }
