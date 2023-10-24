@@ -32,7 +32,7 @@ public sealed class WeatherForecastEndpoint : IEndpointProvider {
         public Get() { }
 
         public void AddRoute(IEndpointRouteBuilder app) {
-            app.MapGet("/weatherforecast", HandleAsync);
+            app.MapGet("/", HandleAsync);
         }
 
         // inject scoped services in method: Services, token, HttpContext
@@ -44,7 +44,7 @@ public sealed class WeatherForecastEndpoint : IEndpointProvider {
 
     public sealed class GetById : IEndpoint {
         public void AddRoute(IEndpointRouteBuilder app) {
-            app.MapGet("/weatherforecast/{id:guid}", HandleAsync);
+            app.MapGet("/{id:guid}", HandleAsync);
         }
         
         // inject scoped services in method: Services, token, HttpContext
