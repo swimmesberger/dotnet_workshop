@@ -6,6 +6,13 @@ namespace CoolNewProject.Domain;
 
 /// <summary>
 /// Only add the most basic/general specifications here, for more complex queries use use-case specific specifications.
+/// Additionally not everything must be implemented as a specification (but as much as possible). If there are specific
+/// queries required which require the full feature set of IQueryable (e.g. complex joins) those methods can be easily
+/// added as a specific repository method to your specific repository.
+/// ISpecification itself is there to improve testability because IQueryable (with extension methods) is difficult to
+/// mock. Only using repositories with specific methods can be tedious to mock because every specific methods requires
+/// a specific mock which can get out-of-hand really fast - therefore is the specification pattern a good middle-ground
+/// between specific repositories and complex IQueryable.
 /// </summary>
 public static class RepositoryExtensions {
     public static Task<List<T>> ListAsync<T>(this IReadOnlyRepository<T> repository, CancellationToken cancellationToken = default) 

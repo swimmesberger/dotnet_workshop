@@ -10,12 +10,12 @@ public class EfBaseRepository<T> : IRepository<T> where T : class, IAggregateRoo
     private readonly ISpecificationEvaluator _specificationEvaluator;
     
     public EfBaseRepository(DbContext dbContext) : this(dbContext, SpecificationEvaluator.Default) {
-        this._dbContext = dbContext;
+        _dbContext = dbContext;
     }
     
     public EfBaseRepository(DbContext dbContext, ISpecificationEvaluator specificationEvaluator) {
-        this._dbContext = dbContext;
-        this._specificationEvaluator = specificationEvaluator;
+        _dbContext = dbContext;
+        _specificationEvaluator = specificationEvaluator;
     }
 
     public async Task<T> AddAsync(T entity, CancellationToken cancellationToken = default) 
