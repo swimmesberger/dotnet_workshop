@@ -1,5 +1,6 @@
 ﻿using Ardalis.HttpClientTestExtensions;
 using CoolNewProject.Domain.WeatherForecast;
+using CoolNewProject.Web;
 using Xunit.Abstractions;
 
 namespace CoolNewProject.UnitTests.WeatherForecast; 

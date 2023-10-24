@@ -1,5 +1,4 @@
-﻿using CoolNewProject.Domain.WeatherForecast.Repositories;
-using CoolNewProject.Infrastructure.WeatherForecast;
+﻿using CoolNewProject.Infrastructure.WeatherForecast;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

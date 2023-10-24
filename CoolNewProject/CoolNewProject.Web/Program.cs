@@ -1,6 +1,7 @@
 using CoolNewProject.Domain;
-using CoolNewProject.Infrastructure;using CoolNewProject.Web;
-using CoolNewProject.Web.MinimalApi;
+using CoolNewProject.Infrastructure;
+using CoolNewProject.Web;
+using CoolNewProject.Web.Endpoints;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Identity.Web;
 
@@ -29,7 +30,7 @@ if (app.Environment.IsDevelopment()) {
 
 app.UseHttpsRedirection();
 app.UseRouting();
-app.MapEndpoints();
+app.MapEndpointProviders();
 if (!app.Environment.IsEnvironment("Testing")) {
     // check and add seed data
     SeedData.Init(app.Services);
@@ -37,4 +38,6 @@ if (!app.Environment.IsEnvironment("Testing")) {
 app.Run();
 
 // required for testing
-public partial class Program{}
+namespace CoolNewProject.Web {
+    public partial class Program{}
+}
