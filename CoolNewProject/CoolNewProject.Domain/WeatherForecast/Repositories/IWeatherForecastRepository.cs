@@ -1,3 +1,3 @@
 ﻿namespace CoolNewProject.Domain.WeatherForecast.Repositories; 
 
-public interface IWeatherForecastRepository : IRepository<WeatherForecastEntity>;
+public interface IWeatherForecastRepository : IRepository<WeatherForecastEntity>{}

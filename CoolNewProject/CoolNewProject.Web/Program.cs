@@ -31,7 +31,7 @@ if (app.Environment.IsDevelopment()) {
 
 app.UseHttpsRedirection();
 app.UseRouting();
-app.UseEndpoints(x => x.MapControllers());
+app.MapControllers();
 if (!app.Environment.IsEnvironment("Testing")) {
     // check and add seed data
     SeedData.Init(app.Services);
@@ -39,4 +39,4 @@ if (!app.Environment.IsEnvironment("Testing")) {
 app.Run();
 
 // required for testing
-public partial class Program;
+public partial class Program{}

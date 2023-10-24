@@ -14,7 +14,7 @@ public static class RepositoryExtensions {
         return repository.ListAsync(new ProjectionSpecification<TEntity, TResult>(projection), cancellationToken);
     }
 
-    private class AllSpecification<T> : Specification<T, T>;
+    private class AllSpecification<T> : Specification<T, T>{}
 
     private class ProjectionSpecification<TEntity, TResult> : Specification<TEntity, TResult> {
         public ProjectionSpecification(Expression<Func<TEntity, TResult>> selector) {
