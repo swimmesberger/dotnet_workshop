@@ -14,46 +14,39 @@ namespace CoolNewProject.Web.WeatherForecast.Endpoints;
 [SuppressMessage("ReSharper", "UnusedMember.Global")]
 [SuppressMessage("ReSharper", "UnusedType.Global")]
 [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
+[SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
 public sealed class WeatherForecastEndpoint : IEndpointProvider {
     public IEndpointRouteBuilder MapEndpoints(IEndpointRouteBuilder app) {
         var root = app.MapGroup("/weatherforecast")
             .WithTags("WeatherForecast")
             .WithOpenApi()
             .AllowAnonymous();
-        // register all nested types of this type
-        root.MapEndpoints<WeatherForecastEndpoint>();
-        // OR register every endpoint explicitly
-        //root.MapEndpoint<Get>();
-        //root.MapEndpoint<GetById>();
+        root.MapGet<Get>("/");
+        root.MapGet<GetById>("/{id:guid}");
         return app;
     }
-
+    
     public sealed class Get : IEndpoint {
-        // inject singleton services here/prepare "slow" configuration
-        public Get() { }
+        private readonly IWeatherForecastService _forecastService;
 
-        public void AddRoute(IEndpointRouteBuilder app) {
-            app.MapGet("/", HandleAsync);
+        public Get(IWeatherForecastService forecastService) {
+            _forecastService = forecastService;
         }
-
-        // inject scoped services in method: Services, token, HttpContext
-        // keep public for better testability
-        public async Task<List<WeatherForecastDto>> HandleAsync([FromServices] IWeatherForecastService forecastService,
-            CancellationToken cancellationToken) {
-            return await forecastService.GetForecasts(cancellationToken);
+        
+        public async Task<List<WeatherForecastDto>> HandleAsync(CancellationToken cancellationToken) {
+            return await _forecastService.GetForecasts(cancellationToken);
         }
     }
 
     public sealed class GetById : IEndpoint {
-        public void AddRoute(IEndpointRouteBuilder app) {
-            app.MapGet("/{id:guid}", HandleAsync);
+        private readonly IWeatherForecastService _forecastService;
+
+        public GetById(IWeatherForecastService forecastService) {
+            _forecastService = forecastService;
         }
         
-        // inject scoped services in method: Services, token, HttpContext
-        // keep public for better testability
-        public async Task<IResult> HandleAsync([FromServices] IWeatherForecastService forecastService,
-            [FromRoute] Guid id, CancellationToken cancellationToken) {
-            return Results.Ok(await forecastService.GetForecastById(id, cancellationToken));
+        public async Task<IResult> HandleAsync([FromRoute] Guid id, CancellationToken cancellationToken) {
+            return Results.Ok(await _forecastService.GetForecastById(id, cancellationToken));
         }
     }
 }
