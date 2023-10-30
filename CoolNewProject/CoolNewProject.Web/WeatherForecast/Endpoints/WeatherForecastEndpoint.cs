@@ -11,42 +11,27 @@ namespace CoolNewProject.Web.WeatherForecast.Endpoints;
 /// It is best practice to use as many classes as possible when there are different requirements (read as DI services),
 /// to ensure that every endpoint is separately testable with as less dependencies as possible.
 /// </summary>
-[SuppressMessage("ReSharper", "UnusedMember.Global")]
+[SuppressMessage("ReSharper", "MemberCanBeMadeStatic.Local")]
 [SuppressMessage("ReSharper", "UnusedType.Global")]
-[SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
-[SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
 public sealed class WeatherForecastEndpoint : IEndpointProvider {
     public IEndpointRouteBuilder MapEndpoints(IEndpointRouteBuilder app) {
         var root = app.MapGroup("/weatherforecast")
             .WithTags("WeatherForecast")
             .WithOpenApi()
             .AllowAnonymous();
-        root.MapGet<Get>("/");
-        root.MapGet<GetById>("/{id:guid}");
+        root.MapGet("/", HandleGetAsync);
+        root.MapGet("/{id:guid}", HandleGetByIdAsync);
         return app;
     }
     
-    public sealed class Get : IEndpoint {
-        private readonly IWeatherForecastService _forecastService;
+    private async Task<List<WeatherForecastDto>> HandleGetAsync(
+        [FromServices] IWeatherForecastService forecastService, 
+        CancellationToken cancellationToken
+    ) => await forecastService.GetForecasts(cancellationToken);
 
-        public Get(IWeatherForecastService forecastService) {
-            _forecastService = forecastService;
-        }
-        
-        public async Task<List<WeatherForecastDto>> HandleAsync(CancellationToken cancellationToken) {
-            return await _forecastService.GetForecasts(cancellationToken);
-        }
-    }
-
-    public sealed class GetById : IEndpoint {
-        private readonly IWeatherForecastService _forecastService;
-
-        public GetById(IWeatherForecastService forecastService) {
-            _forecastService = forecastService;
-        }
-        
-        public async Task<IResult> HandleAsync([FromRoute] Guid id, CancellationToken cancellationToken) {
-            return Results.Ok(await _forecastService.GetForecastById(id, cancellationToken));
-        }
-    }
+    private async Task<IResult> HandleGetByIdAsync(
+        [FromServices] IWeatherForecastService forecastService, 
+        [FromRoute] Guid id, 
+        CancellationToken cancellationToken
+    ) => Results.Ok(await forecastService.GetForecastById(id, cancellationToken));
 }
