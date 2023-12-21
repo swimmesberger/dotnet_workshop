@@ -1,12 +1,11 @@
 ﻿# Pulumi
 ## Pulumi Setup (State)
 ```
-set AZURE_STORAGE_ACCOUNT=swisslogdevgeneral
-set AZURE_STORAGE_KEY=$KeyFromKeeperOrAzure
-set PULUMI_CONFIG_PASSPHRASE=$KeyFromKeeper
+set AZURE_STORAGE_ACCOUNT=$StorageAccountName
+set AZURE_STORAGE_KEY=$StorageAccountPassword
+set PULUMI_CONFIG_PASSPHRASE=$PulumiPassphrase
 az login
-# MPN Simon 150$ sub
-az account set --subscription=5c833e65-662f-4931-970f-492aa4e6ebf0
+az account set --subscription=$AzureSubId
 pulumi login azblob://pulumi-state
 ```
 
@@ -28,5 +27,5 @@ pulumi destroy -t $URN
 
 Set nested password
 ```
-pulumi config set --path azure-native:sql.password --secret $KeyFromKeeper
+pulumi config set --path azure-native:sql.password --secret $Secret
 ```
