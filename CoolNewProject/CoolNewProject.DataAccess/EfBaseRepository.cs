@@ -3,7 +3,7 @@ using Ardalis.Specification.EntityFrameworkCore;
 using CoolNewProject.Domain;
 using Microsoft.EntityFrameworkCore;
 
-namespace CoolNewProject.Infrastructure; 
+namespace CoolNewProject.DataAccess; 
 
 public class EfBaseRepository<T> : IRepository<T> where T : class, IAggregateRoot {
     private readonly DbContext _dbContext;

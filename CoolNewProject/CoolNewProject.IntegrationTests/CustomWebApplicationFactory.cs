@@ -1,4 +1,4 @@
-﻿using CoolNewProject.Infrastructure;
+﻿using CoolNewProject.DataAccess;
 using CoolNewProject.Web;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;

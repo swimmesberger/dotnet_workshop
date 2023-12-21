@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace CoolNewProject.Infrastructure.WeatherForecast; 
+namespace CoolNewProject.DataAccess.WeatherForecast; 
 
 internal static class WeatherForecastServiceExtensions {
     public static IHostBuilder UseWeatherForecast(this IHostBuilder builder) {

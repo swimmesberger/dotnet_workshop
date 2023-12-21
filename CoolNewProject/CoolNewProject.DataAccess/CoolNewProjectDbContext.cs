@@ -1,7 +1,7 @@
 ﻿using CoolNewProject.Domain.WeatherForecast;
 using Microsoft.EntityFrameworkCore;
 
-namespace CoolNewProject.Infrastructure; 
+namespace CoolNewProject.DataAccess; 
 
 public sealed class CoolNewProjectDbContext : DbContext {
     public DbSet<WeatherForecastEntity> WeatherForecasts => Set<WeatherForecastEntity>();

@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace CoolNewProject.Infrastructure; 
+namespace CoolNewProject.DataAccess; 
 
 public class DateOnlyConverter : ValueConverter<DateOnly, DateTime> {
     public DateOnlyConverter() : base(

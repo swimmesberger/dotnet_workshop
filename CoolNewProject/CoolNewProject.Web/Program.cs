@@ -1,5 +1,5 @@
 using CoolNewProject.Domain;
-using CoolNewProject.Infrastructure;
+using CoolNewProject.DataAccess;
 using CoolNewProject.Web;
 using CoolNewProject.Web.Endpoints;
 using Microsoft.AspNetCore.Authentication.JwtBearer;

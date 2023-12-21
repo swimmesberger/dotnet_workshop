@@ -1,10 +1,10 @@
-﻿using CoolNewProject.Infrastructure.WeatherForecast;
+﻿using CoolNewProject.DataAccess.WeatherForecast;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace CoolNewProject.Infrastructure; 
+namespace CoolNewProject.DataAccess; 
 
 public static class InfrastructureServiceExtensions {
     public static IHostBuilder UseCoolNewProjectInfrastructure(this IHostBuilder builder) {

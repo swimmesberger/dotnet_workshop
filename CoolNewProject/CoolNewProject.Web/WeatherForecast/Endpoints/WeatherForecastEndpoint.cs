@@ -2,6 +2,7 @@
 using CoolNewProject.Domain.WeatherForecast;
 using CoolNewProject.Domain.WeatherForecast.Contracts;
 using CoolNewProject.Web.Endpoints;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CoolNewProject.Web.WeatherForecast.Endpoints; 
@@ -29,9 +30,12 @@ public sealed class WeatherForecastEndpoint : IEndpointProvider {
         CancellationToken cancellationToken
     ) => await forecastService.GetForecasts(cancellationToken);
 
-    private async Task<IResult> HandleGetByIdAsync(
-        [FromServices] IWeatherForecastService forecastService, 
-        [FromRoute] Guid id, 
+    private async Task<Results<NotFound, Ok<WeatherForecastDto>>> HandleGetByIdAsync(
+        [FromServices] IWeatherForecastService forecastService,
+        [FromRoute] Guid id,
         CancellationToken cancellationToken
-    ) => Results.Ok(await forecastService.GetForecastById(id, cancellationToken));
+    ) {
+        var item = await forecastService.GetForecastById(id, cancellationToken);
+        return item == null ? TypedResults.NotFound() : TypedResults.Ok(item);
+    }
 }

@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace CoolNewProject.Infrastructure.WeatherForecast; 
+namespace CoolNewProject.DataAccess.WeatherForecast; 
 
 public sealed class WeatherForecastConfiguration : IEntityTypeConfiguration<WeatherForecastEntity>  {
     public void Configure(EntityTypeBuilder<WeatherForecastEntity> builder) {

@@ -6,9 +6,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoolNewProject.Domain", "Co
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoolNewProject.UnitTests", "CoolNewProject.UnitTests\CoolNewProject.UnitTests.csproj", "{269C148B-2070-4AB9-BAAD-E59E09E89E98}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoolNewProject.Infrastructure", "CoolNewProject.Infrastructure\CoolNewProject.Infrastructure.csproj", "{F3AACE29-52B8-4532-B0DC-61229CC1207E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoolNewProject.DataAccess", "CoolNewProject.DataAccess\CoolNewProject.DataAccess.csproj", "{F3AACE29-52B8-4532-B0DC-61229CC1207E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoolNewProject.IntegrationTests", "CoolNewProject.IntegrationTests\CoolNewProject.IntegrationTests.csproj", "{076CEE61-5771-4376-B9A5-4CAA1ED560D0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoolNewProject.ReverseProxy", "CoolNewProject.ReverseProxy\CoolNewProject.ReverseProxy.csproj", "{D4D21AC7-7FCB-4897-8835-1DCA633632BE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -36,5 +38,9 @@ Global
 		{076CEE61-5771-4376-B9A5-4CAA1ED560D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{076CEE61-5771-4376-B9A5-4CAA1ED560D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{076CEE61-5771-4376-B9A5-4CAA1ED560D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D4D21AC7-7FCB-4897-8835-1DCA633632BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4D21AC7-7FCB-4897-8835-1DCA633632BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D4D21AC7-7FCB-4897-8835-1DCA633632BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D4D21AC7-7FCB-4897-8835-1DCA633632BE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

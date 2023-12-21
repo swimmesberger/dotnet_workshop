@@ -1,5 +1,5 @@
 ﻿using CoolNewProject.Domain.WeatherForecast;
-using CoolNewProject.Infrastructure;
+using CoolNewProject.DataAccess;
 using Microsoft.EntityFrameworkCore;
 
 namespace CoolNewProject.Web; 
