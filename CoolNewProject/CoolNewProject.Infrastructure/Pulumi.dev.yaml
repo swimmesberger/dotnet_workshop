@@ -1,0 +1,17 @@
+encryptionsalt: v1:0KI00o4p9C8=:v1:l4Yhe11XXjJ59Ssk:hBE6cq+Y35Z8Ku36fCDnuTaVRyIAZw==
+config:
+  azure-native:location: westeurope
+  azure-native:sql:
+    backup-redundancy: Local
+    password:
+      secure: v1:/c4KvJ2VpPNR+wET:oSYhJm00kXa2jkoPd9Sp5/DipfHf4etEDIp+Fdesihw3iO3e
+    sku:
+      capacity: 5
+      name: Basic
+      tier: Basic
+    zone-redundant: false
+  azure-native:web:
+    service-plan: 'freelinux'
+  azure-native:workspace:
+    sku:
+      name: PerGB2018

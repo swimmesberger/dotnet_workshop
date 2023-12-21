@@ -7,7 +7,7 @@ using Microsoft.Extensions.Hosting;
 namespace CoolNewProject.DataAccess; 
 
 public static class InfrastructureServiceExtensions {
-    public static IHostBuilder UseCoolNewProjectInfrastructure(this IHostBuilder builder) {
+    public static IHostBuilder UseCoolNewProjectDataAccess(this IHostBuilder builder) {
         builder.UseSqlInfrastructure();
         return builder;
     }

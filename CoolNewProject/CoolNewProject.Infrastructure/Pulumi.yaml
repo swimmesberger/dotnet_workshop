@@ -1,0 +1,3 @@
+name: Stormhunter.Tool.Infrastructure
+runtime: dotnet
+description: Azure Native Pulumi Infrastructure As Code

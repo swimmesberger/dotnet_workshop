@@ -2,19 +2,14 @@ using CoolNewProject.Domain;
 using CoolNewProject.DataAccess;
 using CoolNewProject.Web;
 using CoolNewProject.Web.Endpoints;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Identity.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddEndpoints();
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
-builder.Services.AddAuthorization();
 
 builder.Host.UseCoolNewProjectDomain();
-builder.Host.UseCoolNewProjectInfrastructure();
+builder.Host.UseCoolNewProjectDataAccess();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
