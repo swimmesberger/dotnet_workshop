@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>EXE</OutputType>
+    <IsAspireHost>true</IsAspireHost>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CoolNewProject.WebApp\CoolNewProject.WebApp.csproj" />
+    <ProjectReference Include="..\CoolNewProject.Api\CoolNewProject.Api.csproj" />
+  </ItemGroup>
+</Project>
