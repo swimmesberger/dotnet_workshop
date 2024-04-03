@@ -6,6 +6,7 @@ using CoolNewProject.Domain.Catalog.Entities;
 using CoolNewProject.ServiceDefaults;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
+using Pgvector;
 
 namespace CoolNewProject.Api.Catalog;
 
@@ -58,9 +59,9 @@ public sealed class CatalogContextSeed(
                     MaxStockThreshold = 200,
                     RestockThreshold = 10,
                     PictureFileName = $"{source.Id}.webp",
-                    Embedding = null
+                    Embedding = source.Embedding == null ? null : new Vector(source.Embedding)
                 };
-                if (catalogAi.IsEnabled) {
+                if (entity.Embedding is null && catalogAi.IsEnabled) {
                     logger.LogInformation("Creating embedding for catalog item {ItemId} ({ItemName})", source.Id,
                         source.Name);
                     entity.Embedding = await catalogAi.GetEmbeddingAsync(entity);

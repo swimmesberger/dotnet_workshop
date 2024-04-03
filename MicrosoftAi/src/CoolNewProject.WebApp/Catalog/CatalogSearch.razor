@@ -60,6 +60,7 @@
     private string BrandUri(int? brandId) {
         return Nav.GetUriWithQueryParameters(new Dictionary<string, object?>() {
             { "page", null },
+            { "q", null },
             { "brand", brandId }
         });
     }
@@ -67,6 +68,7 @@
     private string TypeUri(int? typeId) {
         return Nav.GetUriWithQueryParameters(new Dictionary<string, object?>() {
             { "page", null },
+            { "q", null },
             { "type", typeId }
         });
     }
