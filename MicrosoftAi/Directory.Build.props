@@ -1,7 +1,7 @@
 <Project>
   <PropertyGroup>
     <LangVersion>12</LangVersion>
-	<NoWarn>SKEXP0001,SKEXP0010</NoWarn>
+    <NoWarn>SKEXP0001,SKEXP0010</NoWarn>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>

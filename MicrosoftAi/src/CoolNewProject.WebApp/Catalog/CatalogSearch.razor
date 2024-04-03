@@ -1,0 +1,74 @@
+﻿@inject CatalogService CatalogService
+@inject NavigationManager Nav
+
+@if (_catalogBrands is not null && _catalogItemTypes is not null) {
+    <div class="catalog-search">
+        <div class="catalog-search-header">
+            <img role="presentation" src="icons/filters.svg"/>
+            Filters
+        </div>
+        <div class="catalog-search-types">
+            <div class="catalog-search-group">
+                <h3>Brand</h3>
+                <div class="catalog-search-group-tags">
+                    <a href="@BrandUri(null)"
+                       class="catalog-search-tag @(BrandId == null ? "active " : "")">
+                        All
+                    </a>
+                    @foreach (var brand in _catalogBrands) {
+                        <a href="@BrandUri(brand.Id)"
+                           class="catalog-search-tag @(BrandId == brand.Id ? "active " : "")">
+                            @brand.Brand
+                        </a>
+                    }
+                </div>
+            </div>
+            <div class="catalog-search-group">
+                <h3>Type</h3>
+
+                <div class="catalog-search-group-tags">
+                    <a href="@TypeUri(null)"
+                       class="catalog-search-tag @(ItemTypeId == null ? "active " : "")">
+                        All
+                    </a>
+                    @foreach (var itemType in _catalogItemTypes) {
+                        <a href="@TypeUri(itemType.Id)"
+                           class="catalog-search-tag @(ItemTypeId == itemType.Id ? "active " : "")">
+                            @itemType.Type
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private IEnumerable<CatalogBrand>? _catalogBrands;
+    private IEnumerable<CatalogItemType>? _catalogItemTypes;
+    [Parameter] public int? BrandId { get; set; }
+    [Parameter] public int? ItemTypeId { get; set; }
+
+    protected override async Task OnInitializedAsync() {
+        var brandsTask = CatalogService.GetBrands();
+        var itemTypesTask = CatalogService.GetTypes();
+        await Task.WhenAll(brandsTask, itemTypesTask);
+        _catalogBrands = brandsTask.Result;
+        _catalogItemTypes = itemTypesTask.Result;
+    }
+
+    private string BrandUri(int? brandId) {
+        return Nav.GetUriWithQueryParameters(new Dictionary<string, object?>() {
+            { "page", null },
+            { "brand", brandId }
+        });
+    }
+
+    private string TypeUri(int? typeId) {
+        return Nav.GetUriWithQueryParameters(new Dictionary<string, object?>() {
+            { "page", null },
+            { "type", typeId }
+        });
+    }
+
+}
