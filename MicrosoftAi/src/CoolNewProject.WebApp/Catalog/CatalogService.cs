@@ -2,41 +2,41 @@
 
 namespace CoolNewProject.WebApp.Catalog;
 
-public class CatalogService(HttpClient httpClient) {
-    private readonly string remoteServiceBaseUrl = "api/v1/catalog/";
+public sealed class CatalogService(HttpClient httpClient) {
+    private const string RemoteServiceBaseUrl = "api/v1/catalog/";
 
     public Task<CatalogItem?> GetCatalogItem(int id) {
-        string? uri = $"{remoteServiceBaseUrl}items/{id}";
+        string uri = $"{RemoteServiceBaseUrl}items/{id}";
         return httpClient.GetFromJsonAsync<CatalogItem>(uri);
     }
 
     public async Task<CatalogResult> GetCatalogItems(int pageIndex, int pageSize, int? brand, int? type, string? searchText, CancellationToken cancellationToken = default) {
-        string uri = GetAllCatalogItemsUri(remoteServiceBaseUrl, pageIndex, pageSize, brand, type, searchText);
+        string uri = GetAllCatalogItemsUri(RemoteServiceBaseUrl, pageIndex, pageSize, brand, type, searchText);
         CatalogResult? result = await httpClient.GetFromJsonAsync<CatalogResult>(uri, cancellationToken: cancellationToken);
         return result!;
     }
 
     public async Task<List<CatalogItem>> GetCatalogItems(IEnumerable<int> ids) {
-        string? uri = $"{remoteServiceBaseUrl}items/by?ids={string.Join("&ids=", ids)}";
+        string? uri = $"{RemoteServiceBaseUrl}items/by?ids={string.Join("&ids=", ids)}";
         List<CatalogItem>? result = await httpClient.GetFromJsonAsync<List<CatalogItem>>(uri);
         return result!;
     }
 
     public async Task<CatalogResult> GetCatalogItemsWithSemanticRelevance(int page, int take, string text) {
         string url =
-            $"{remoteServiceBaseUrl}items/withsemanticrelevance/{HttpUtility.UrlEncode(text)}?pageIndex={page}&pageSize={take}";
+            $"{RemoteServiceBaseUrl}items/withsemanticrelevance/{HttpUtility.UrlEncode(text)}?pageIndex={page}&pageSize={take}";
         CatalogResult? result = await httpClient.GetFromJsonAsync<CatalogResult>(url);
         return result!;
     }
 
     public async Task<IEnumerable<CatalogBrand>> GetBrands() {
-        string? uri = $"{remoteServiceBaseUrl}catalogBrands";
+        string? uri = $"{RemoteServiceBaseUrl}catalogBrands";
         CatalogBrand[]? result = await httpClient.GetFromJsonAsync<CatalogBrand[]>(uri);
         return result!;
     }
 
     public async Task<IEnumerable<CatalogItemType>> GetTypes() {
-        string? uri = $"{remoteServiceBaseUrl}catalogTypes";
+        string? uri = $"{RemoteServiceBaseUrl}catalogTypes";
         CatalogItemType[]? result = await httpClient.GetFromJsonAsync<CatalogItemType[]>(uri);
         return result!;
     }

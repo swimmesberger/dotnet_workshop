@@ -2,12 +2,11 @@
 using CoolNewProject.Domain.Catalog.DataAccess;
 using CoolNewProject.ServiceDefaults;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.SemanticKernel;
 
 namespace CoolNewProject.Api.Catalog;
 
 public static class CatalogExtensions {
-    public static void AddApplicationServices(this IHostApplicationBuilder builder) {
+    public static void AddCatalogServices(this IHostApplicationBuilder builder) {
         builder.AddNpgsqlDbContext<CatalogContext>("catalogdb",
             configureDbContextOptions: dbContextOptionsBuilder => {
                 dbContextOptionsBuilder.UseNpgsql(x => x.UseVector());
@@ -19,13 +18,7 @@ public static class CatalogExtensions {
         builder.Services.AddOptions<CatalogOptions>()
             .BindConfiguration(nameof(CatalogOptions));
 
-        builder.Services.AddSingleton<CatalogAi>();
-        builder.AddAiServices();
-    }
-
-    private static void AddAiServices(this IHostApplicationBuilder builder) {
-        builder.Services
-            .AddKernel()
-            .AddLocalTextEmbeddingGeneration();
+        builder.Services.AddSingleton<CatalogEmbeddingGeneratorService>();
+        builder.Services.AddScoped<CatalogService>();
     }
 }

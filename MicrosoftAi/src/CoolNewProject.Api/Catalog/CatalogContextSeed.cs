@@ -12,7 +12,7 @@ namespace CoolNewProject.Api.Catalog;
 
 public sealed class CatalogContextSeed(
     IHostEnvironment env,
-    CatalogAi catalogAi,
+    CatalogEmbeddingGeneratorService catalogEmbeddingGenerator,
     ILogger<CatalogContextSeed> logger) : IDbSeeder<CatalogContext> {
     [SuppressMessage("ReSharper", "EntityFramework.NPlusOne.IncompleteDataUsage")]
     [SuppressMessage("ReSharper", "EntityFramework.NPlusOne.IncompleteDataQuery")]
@@ -61,10 +61,10 @@ public sealed class CatalogContextSeed(
                     PictureFileName = $"{source.Id}.webp",
                     Embedding = source.Embedding == null ? null : new Vector(source.Embedding)
                 };
-                if (entity.Embedding is null && catalogAi.IsEnabled) {
+                if (entity.Embedding is null && catalogEmbeddingGenerator.IsEnabled) {
                     logger.LogInformation("Creating embedding for catalog item {ItemId} ({ItemName})", source.Id,
                         source.Name);
-                    entity.Embedding = await catalogAi.GetEmbeddingAsync(entity);
+                    entity.Embedding = await catalogEmbeddingGenerator.GetEmbeddingAsync(entity);
                 }
                 entities.Add(entity);
             }

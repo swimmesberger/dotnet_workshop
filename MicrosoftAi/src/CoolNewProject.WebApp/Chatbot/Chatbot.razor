@@ -1,0 +1,62 @@
+﻿@rendermode @(new InteractiveServerRenderMode(prerender: false))
+@using Microsoft.AspNetCore.Components.Authorization
+@using CoolNewProject.WebApp.Catalog
+@using CoolNewProject.WebApp.Basket
+@using Microsoft.SemanticKernel
+@using Microsoft.SemanticKernel.ChatCompletion
+@inject IJSRuntime Js
+@inject NavigationManager Nav
+@inject ChatbotService ChatbotService
+@inject ChatState ChatState
+
+<div class="floating-pane">
+    <a href="@Nav.GetUriWithQueryParameter("chat", (string?)null)" class="hide-chatbot" title="Close .NET Concierge">
+        <span>✖</span>
+    </a>
+
+    <div class="chatbot-chat" @ref="chat">
+        @foreach (var message in ChatState.Messages.Where(m => m.Role == AuthorRole.Assistant || m.Role == AuthorRole.User)) {
+            if (!string.IsNullOrEmpty(message.Content)) {
+                <p @key="@message" class="message message-@message.Role">@MessageProcessor.AllowImages(message.Content)</p>
+            }
+        }
+
+        @if (thinking) {
+            <p class="thinking">Thinking...</p>
+        }
+    </div>
+
+    <form class="chatbot-input" @onsubmit="SendMessageAsync">
+        <textarea placeholder="Start chatting..." @ref="@textbox" @bind="messageToSend"></textarea>
+        <button type="submit" title="Send">Send</button>
+    </form>
+</div>
+
+@code {
+    private ElementReference textbox;
+    private ElementReference chat;
+    private string? messageToSend;
+    private bool thinking;
+    private IJSObjectReference? jsModule;
+
+    private async Task SendMessageAsync() {
+        var messageCopy = messageToSend?.Trim();
+        messageToSend = null;
+
+        if (ChatState is not null && !string.IsNullOrEmpty(messageCopy)) {
+            thinking = true;
+            await ChatState.AddUserMessageAsync(messageCopy, onMessageAdded: StateHasChanged);
+            thinking = false;
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender) {
+        jsModule ??= await Js.InvokeAsync<IJSObjectReference>("import", "./Chatbot/Chatbot.razor.js");
+        await jsModule.InvokeVoidAsync("scrollToEnd", chat);
+
+        if (firstRender) {
+            await textbox.FocusAsync();
+            await jsModule.InvokeVoidAsync("submitOnEnter", textbox);
+        }
+    }
+}

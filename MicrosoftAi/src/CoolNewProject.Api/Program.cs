@@ -1,6 +1,9 @@
 using System.Text.Json;
+using CoolNewProject.Api.Ai;
+using CoolNewProject.Api.Basket;
 using CoolNewProject.ServiceDefaults;
 using CoolNewProject.Api.Catalog;
+using CoolNewProject.Api.Chatbot;
 using CoolNewProject.Domain.Catalog.DataAccess;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,7 +11,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 builder.AddDefaultOpenApi();
-builder.AddApplicationServices();
+builder.AddAiServices();
+builder.AddCatalogServices();
+builder.AddBasketServices();
+builder.AddChatbotServices();
 
 builder.Services.AddProblemDetails();
 
@@ -24,6 +30,10 @@ app.MapDefaultEndpoints();
 app.MapGroup("/api/v1/catalog")
     .WithTags("Catalog API")
     .MapCatalogApi();
+
+app.MapGroup("/api/v1/chatbot")
+    .WithTags("Chatbot API")
+    .MapChatbotApi();
 
 app.Run();
 return;

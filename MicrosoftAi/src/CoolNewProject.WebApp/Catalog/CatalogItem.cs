@@ -1,6 +1,6 @@
 ﻿namespace CoolNewProject.WebApp.Catalog;
 
-public record CatalogItem(
+public sealed record CatalogItem(
     int Id,
     string Name,
     string Description,
@@ -11,8 +11,8 @@ public record CatalogItem(
     int CatalogTypeId,
     CatalogItemType CatalogType);
 
-public record CatalogResult(int PageIndex, int PageSize, int Count, List<CatalogItem> Data);
+public sealed record CatalogResult(int PageIndex, int PageSize, int Count, List<CatalogItem> Data);
 
-public record CatalogBrand(int Id, string Brand);
+public sealed record CatalogBrand(int Id, string Brand);
 
-public record CatalogItemType(int Id, string Type);
+public sealed record CatalogItemType(int Id, string Type);

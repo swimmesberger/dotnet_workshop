@@ -18,5 +18,9 @@
   <ItemGroup>
     <ProjectReference Include="..\CoolNewProject.ServiceDefaults\CoolNewProject.ServiceDefaults.csproj" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <Folder Include="Catalog\Overview\" />
+  </ItemGroup>
 
 </Project>

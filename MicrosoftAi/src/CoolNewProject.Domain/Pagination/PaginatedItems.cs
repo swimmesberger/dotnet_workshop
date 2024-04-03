@@ -1,4 +1,4 @@
-﻿namespace CoolNewProject.Api.Catalog.Models;
+﻿namespace CoolNewProject.Domain.Pagination;
 
 public class PaginatedItems<TEntity>(int pageIndex, int pageSize, long count, IEnumerable<TEntity> data)
     where TEntity : class {

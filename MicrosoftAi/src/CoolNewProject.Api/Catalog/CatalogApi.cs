@@ -1,13 +1,10 @@
-﻿using CoolNewProject.Api.Catalog.Models;
-using CoolNewProject.Domain.Catalog;
+﻿using CoolNewProject.Domain.Catalog;
 using CoolNewProject.Domain.Catalog.DataAccess;
 using CoolNewProject.Domain.Catalog.Entities;
+using CoolNewProject.Domain.Pagination;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Pgvector;
-using Pgvector.EntityFrameworkCore;
 
 namespace CoolNewProject.Api.Catalog;
 
@@ -36,58 +33,35 @@ public static class CatalogApi {
         return app;
     }
 
-    public static async Task<Results<Ok<PaginatedItems<CatalogItem>>, BadRequest<string>>> GetAllItems(
+    private static async Task<Results<Ok<PaginatedItems<CatalogItem>>, BadRequest<string>>> GetAllItems(
         [AsParameters] PaginationRequest paginationRequest,
-        [AsParameters] CatalogServices services,
+        [FromServices] CatalogService catalogService,
         [FromQuery(Name = "q")] string? searchQuery) {
-        return TypedResults.Ok(await SearchCatalog(paginationRequest, services, null, null, searchQuery));
+        return TypedResults.Ok(await catalogService.SearchCatalog(paginationRequest, null, null, searchQuery));
     }
 
-    public static async Task<Ok<List<CatalogItem>>> GetItemsByIds(
-        [AsParameters] CatalogServices services,
-        int[] ids) {
-        List<CatalogItem> items = await services.Context.CatalogItems.Where(item => ids.Contains(item.Id)).ToListAsync();
-        return TypedResults.Ok(items);
+    private static async Task<Ok<List<CatalogItem>>> GetItemsByIds([FromServices] CatalogService catalogService, int[] ids) {
+        return TypedResults.Ok(await catalogService.GetItemsByIds(ids));
     }
 
-    public static async Task<Results<Ok<CatalogItem>, NotFound, BadRequest<string>>> GetItemById(
-        [AsParameters] CatalogServices services,
-        int id) {
+    private static async Task<Results<Ok<CatalogItem>, NotFound, BadRequest<string>>> GetItemById([FromServices] CatalogService catalogService, int id) {
         if (id <= 0) {
             return TypedResults.BadRequest("Id is not valid.");
         }
 
-        CatalogItem? item = await services.Context.CatalogItems.Include(ci => ci.CatalogBrand)
-            .SingleOrDefaultAsync(ci => ci.Id == id);
-
+        CatalogItem? item = await catalogService.GetItemById(id);
         if (item == null) {
             return TypedResults.NotFound();
         }
-
         return TypedResults.Ok(item);
     }
 
-    public static async Task<Ok<PaginatedItems<CatalogItem>>> GetItemsByName(
-        [AsParameters] PaginationRequest paginationRequest,
-        [AsParameters] CatalogServices services,
-        string name) {
-        int pageSize = paginationRequest.PageSize;
-        int pageIndex = paginationRequest.PageIndex;
-
-        long totalItems = await services.Context.CatalogItems
-            .Where(c => c.Name.StartsWith(name))
-            .LongCountAsync();
-
-        List<CatalogItem> itemsOnPage = await services.Context.CatalogItems
-            .Where(c => c.Name.StartsWith(name))
-            .Skip(pageSize * pageIndex)
-            .Take(pageSize)
-            .ToListAsync();
-
-        return TypedResults.Ok(new PaginatedItems<CatalogItem>(pageIndex, pageSize, totalItems, itemsOnPage));
+    private static async Task<Ok<PaginatedItems<CatalogItem>>> GetItemsByName([AsParameters] PaginationRequest paginationRequest,
+        [FromServices] CatalogService catalogService, string name) {
+        return TypedResults.Ok(await catalogService.GetItemsByName(paginationRequest, name));
     }
 
-    public static async Task<Results<NotFound, PhysicalFileHttpResult>> GetItemPictureById(CatalogContext context,
+    private static async Task<Results<NotFound, PhysicalFileHttpResult>> GetItemPictureById(CatalogContext context,
         IWebHostEnvironment environment, int catalogItemId) {
         CatalogItem? item = await context.CatalogItems.FindAsync(catalogItemId);
 
@@ -104,114 +78,39 @@ public static class CatalogApi {
         return TypedResults.PhysicalFile(path, mimetype, lastModified: lastModified);
     }
 
-    public static async Task<Ok<PaginatedItems<CatalogItem>>> GetItemsByBrandAndTypeId(
+    private static async Task<Ok<PaginatedItems<CatalogItem>>> GetItemsByBrandAndTypeId(
         [AsParameters] PaginationRequest paginationRequest,
-        [AsParameters] CatalogServices services,
+        [FromServices] CatalogService catalogService,
         [FromRoute] int typeId,
         [FromRoute] int? brandId,
         [FromQuery(Name = "q")] string? searchQuery) {
-        return TypedResults.Ok(await SearchCatalog(paginationRequest, services, typeId, brandId, searchQuery));
+        return TypedResults.Ok(await catalogService.SearchCatalog(paginationRequest, typeId, brandId, searchQuery));
     }
 
-    public static async Task<Ok<PaginatedItems<CatalogItem>>> GetItemsByBrandId(
+    private static async Task<Ok<PaginatedItems<CatalogItem>>> GetItemsByBrandId(
         [AsParameters] PaginationRequest paginationRequest,
-        [AsParameters] CatalogServices services,
+        [FromServices] CatalogService catalogService,
         [FromRoute] int? brandId,
         [FromQuery(Name = "q")] string? searchQuery) {
-        return TypedResults.Ok(await SearchCatalog(paginationRequest, services, null, brandId, searchQuery));
+        return TypedResults.Ok(await catalogService.SearchCatalog(paginationRequest, null, brandId, searchQuery));
     }
 
-    private static async Task<PaginatedItems<CatalogItem>> SearchCatalog(PaginationRequest paginationRequest, CatalogServices services,
-        int? typeId = null, int? brandId = null, string? searchQuery = null) {
-        int pageSize = paginationRequest.PageSize;
-        int pageIndex = paginationRequest.PageIndex;
-
-        IQueryable<CatalogItem> root = services.Context.CatalogItems;
-
-        // Create an embedding for the input search
-        if (!string.IsNullOrEmpty(searchQuery) && services.CatalogAi.IsEnabled) {
-            Vector searchQueryVector = (await services.CatalogAi.GetEmbeddingAsync(searchQuery))!;
-            root = root
-                .Select(c => new { Item = c, Distance = c.Embedding!.CosineDistance(searchQueryVector) })
-                .Where(c => c.Distance < CatalogConstants.SemanticSearchMaximumDistance)
-                .OrderBy(c => c.Distance)
-                .Select(c => c.Item);
-        }
-
-        if (typeId is not null) {
-            root = root.Where(c => c.CatalogTypeId == typeId);
-        }
-        if (brandId is not null) {
-            root = root.Where(c => c.CatalogBrandId == brandId);
-        }
-
-        long totalItems = await root
-            .LongCountAsync();
-
-
-        List<CatalogItem> itemsOnPage = await root
-            .Skip(pageSize * pageIndex)
-            .Take(pageSize)
-            .ToListAsync();
-
-        return new PaginatedItems<CatalogItem>(pageIndex, pageSize, totalItems, itemsOnPage);
-    }
-
-    public static async Task<Results<Created, NotFound<string>>> UpdateItem(
-        [AsParameters] CatalogServices services,
-        CatalogItem productToUpdate) {
-        CatalogItem? catalogItem =
-            await services.Context.CatalogItems.SingleOrDefaultAsync(i => i.Id == productToUpdate.Id);
-
-        if (catalogItem == null) {
+    private static async Task<Results<Created, NotFound<string>>> UpdateItem([FromServices] CatalogService catalogService, CatalogItem productToUpdate) {
+        if (!await catalogService.UpdateItem(productToUpdate)) {
             return TypedResults.NotFound($"Item with id {productToUpdate.Id} not found.");
         }
-
-        // Update current product
-        EntityEntry<CatalogItem> catalogEntry = services.Context.Entry(catalogItem);
-        catalogEntry.CurrentValues.SetValues(productToUpdate);
-
-        catalogItem.Embedding = await services.CatalogAi.GetEmbeddingAsync(catalogItem);
-
-        await services.Context.SaveChangesAsync();
         return TypedResults.Created($"/api/v1/catalog/items/{productToUpdate.Id}");
     }
 
-    public static async Task<Created> CreateItem(
-        [AsParameters] CatalogServices services,
-        CatalogItem product) {
-        CatalogItem item = new CatalogItem {
-            Id = product.Id,
-            CatalogBrandId = product.CatalogBrandId,
-            CatalogTypeId = product.CatalogTypeId,
-            Description = product.Description,
-            Name = product.Name,
-            PictureFileName = product.PictureFileName,
-            PictureUri = product.PictureUri,
-            Price = product.Price,
-            AvailableStock = product.AvailableStock,
-            RestockThreshold = product.RestockThreshold,
-            MaxStockThreshold = product.MaxStockThreshold
-        };
-        item.Embedding = await services.CatalogAi.GetEmbeddingAsync(item);
-
-        services.Context.CatalogItems.Add(item);
-        await services.Context.SaveChangesAsync();
-
-        return TypedResults.Created($"/api/v1/catalog/items/{item.Id}");
+    private static async Task<Created> CreateItem([FromServices] CatalogService catalogService, CatalogItem product) {
+        await catalogService.CreateItem(product);
+        return TypedResults.Created($"/api/v1/catalog/items/{product.Id}");
     }
 
-    public static async Task<Results<NoContent, NotFound>> DeleteItemById(
-        [AsParameters] CatalogServices services,
-        int id) {
-        CatalogItem? item = services.Context.CatalogItems.SingleOrDefault(x => x.Id == id);
-
-        if (item is null) {
+    private static async Task<Results<NoContent, NotFound>> DeleteItemById([FromServices] CatalogService catalogService, int id) {
+        if (!await catalogService.DeleteItemById(id)) {
             return TypedResults.NotFound();
         }
-
-        services.Context.CatalogItems.Remove(item);
-        await services.Context.SaveChangesAsync();
         return TypedResults.NoContent();
     }
 
@@ -228,6 +127,6 @@ public static class CatalogApi {
         _ => "application/octet-stream"
     };
 
-    public static string GetFullPath(string contentRootPath, string pictureFileName) =>
+    private static string GetFullPath(string contentRootPath, string pictureFileName) =>
         Path.Combine(contentRootPath, "Catalog", "Pics", pictureFileName);
 }

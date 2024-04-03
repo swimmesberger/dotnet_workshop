@@ -1,6 +1,9 @@
 using CoolNewProject.ServiceDefaults;
 using CoolNewProject.WebApp;
 using CoolNewProject.WebApp.Catalog;
+using CoolNewProject.WebApp.Chatbot;
+using Microsoft.AspNetCore.Components.Server;
+using Microsoft.AspNetCore.SignalR;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -8,9 +11,17 @@ builder.AddServiceDefaults();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
+    .AddInteractiveServerComponents(x => {
+        x.JSInteropDefaultCallTimeout = TimeSpan.FromMinutes(5);
+    });
+builder.Services.Configure<HubOptions>(x => {
+    x.MaximumReceiveMessageSize = 10_000;
+    x.ClientTimeoutInterval = TimeSpan.FromMinutes(5);
+});
 
-builder.AddApplicationServices();
+builder.Services.AddHttpForwarderWithServiceDiscovery();
+builder.AddCatalogServices();
+builder.AddChatbotServices();
 
 WebApplication app = builder.Build();
 
