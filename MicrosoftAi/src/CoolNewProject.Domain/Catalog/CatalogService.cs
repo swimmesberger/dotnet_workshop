@@ -64,7 +64,9 @@ public sealed class CatalogService {
 
     public async Task<CatalogSearchResult> SearchCatalog(int skip, int take, int? typeId = null,
         int? brandId = null, string? searchQuery = null) {
-        IQueryable<CatalogItem> root = _dbContext.CatalogItems;
+        IQueryable<CatalogItem> root = _dbContext.CatalogItems
+            .Include(x => x.CatalogBrand)
+            .Include(x => x.CatalogType);
 
         // Create an embedding for the input search
         if (!string.IsNullOrEmpty(searchQuery) && _catalogEmbeddingGenerator.IsEnabled) {

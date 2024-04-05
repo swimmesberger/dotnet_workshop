@@ -3,7 +3,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using CoolNewProject.Domain.Basket;
 using CoolNewProject.Domain.Catalog;
-using CoolNewProject.Domain.Pagination;
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
 
@@ -31,7 +30,8 @@ public sealed class ChatbotInteractions {
                 searchQuery: productDescription
             );
             return JsonSerializer.Serialize(result.Data.Select(x =>
-                new ChatCatalogItemResultDto(x.Name, x.Description, x.Price)));
+                new ChatCatalogItemResultDto(x.Name, x.Description,
+                    x.CatalogType.Type, x.CatalogBrand.Brand, x.Price)));
         } catch (HttpRequestException e) {
             return Error(e, "Error accessing catalog.");
         }
@@ -68,5 +68,5 @@ public sealed class ChatbotInteractions {
     }
 
     // reduce result size to only include data that is interesting for the LLM
-    private sealed record ChatCatalogItemResultDto(string Name, string Description, decimal Price);
+    private sealed record ChatCatalogItemResultDto(string Name, string Description, string Type, string Brand, decimal Price);
 }
