@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
@@ -37,9 +38,12 @@ public sealed class ChatbotService {
 
         // Get and store the AI's response message
         try {
-            ChatMessageContent response = await _kernel
-                .GetRequiredService<IChatCompletionService>()
-                .GetChatMessageContentAsync(_messages, _promptExecutionSettings, _kernel, cancellationToken);
+            var chatCompletionService = _kernel.Services
+                .GetService<IChatCompletionService>();
+            if (chatCompletionService == null) {
+                throw new Exception("Chat completion service not configured properly (maybe configuration is missing?)");
+            }
+            ChatMessageContent response = await chatCompletionService.GetChatMessageContentAsync(_messages, _promptExecutionSettings, _kernel, cancellationToken);
             if (response is OpenAIChatMessageContent openAiChatMessageContent) {
                 response = new ChatMessageContent(openAiChatMessageContent.Role, openAiChatMessageContent.Content, openAiChatMessageContent.ModelId,
                     openAiChatMessageContent.InnerContent, openAiChatMessageContent.Encoding, openAiChatMessageContent.Metadata);

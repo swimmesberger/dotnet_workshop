@@ -1,4 +1,6 @@
-﻿namespace CoolNewProject.WebApp.Chatbot;
+﻿using Microsoft.Extensions.Http.Resilience;
+
+namespace CoolNewProject.WebApp.Chatbot;
 
 public static class ChatbotExtensions {
     public static void AddChatbotServices(this IHostApplicationBuilder builder) {
@@ -6,9 +8,12 @@ public static class ChatbotExtensions {
         builder.Services.AddScoped<ChatState>();
 
         // HTTP client registrations
-        builder.Services.AddHttpClient<ChatbotService>(o => {
-            o.BaseAddress = new Uri("http://catalog-api");
-            o.Timeout = TimeSpan.FromMinutes(5);
-        });
+        var resilienceBuilder = builder.Services.AddHttpClient<ChatbotService>(o =>
+            o.BaseAddress = new Uri("http://catalog-api"))
+            .AddStandardResilienceHandler();
+        var resilienceOptions = builder.Configuration.GetSection("HttpClientResilience:Chatbot");
+        if (resilienceOptions.GetChildren().Any()) {
+            resilienceBuilder.Configure(resilienceOptions);
+        }
     }
 }

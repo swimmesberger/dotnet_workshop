@@ -53,11 +53,17 @@ public sealed class CatalogService {
         return new PaginatedItems<CatalogItem>(pageIndex, pageSize, totalItems, itemsOnPage);
     }
 
-    public async Task<PaginatedItems<CatalogItem>> SearchCatalog(PaginationRequest paginationRequest, int? typeId = null, int? brandId = null,
-        string? searchQuery = null) {
+    public async Task<PaginatedItems<CatalogItem>> SearchCatalog(PaginationRequest paginationRequest, int? typeId = null,
+        int? brandId = null, string? searchQuery = null) {
         int pageSize = paginationRequest.PageSize;
         int pageIndex = paginationRequest.PageIndex;
+        int skip = pageSize * pageIndex;
+        var result = await SearchCatalog(skip, pageSize, typeId, brandId, searchQuery);
+        return new PaginatedItems<CatalogItem>(pageIndex, pageSize, result.TotalItems, result.Data);
+    }
 
+    public async Task<CatalogSearchResult> SearchCatalog(int skip, int take, int? typeId = null,
+        int? brandId = null, string? searchQuery = null) {
         IQueryable<CatalogItem> root = _dbContext.CatalogItems;
 
         // Create an embedding for the input search
@@ -85,13 +91,12 @@ public sealed class CatalogService {
         long totalItems = await root
             .LongCountAsync();
 
-
         List<CatalogItem> itemsOnPage = await root
-            .Skip(pageSize * pageIndex)
-            .Take(pageSize)
+            .Skip(skip)
+            .Take(take)
             .ToListAsync();
 
-        return new PaginatedItems<CatalogItem>(pageIndex, pageSize, totalItems, itemsOnPage);
+        return new CatalogSearchResult(totalItems, itemsOnPage);
     }
 
     public Task<PaginatedItems<CatalogItem>> SearchCatalog(PaginationRequest paginationRequest, string searchQuery) {

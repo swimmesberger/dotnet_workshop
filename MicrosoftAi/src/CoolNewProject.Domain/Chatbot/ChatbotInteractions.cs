@@ -24,11 +24,14 @@ public sealed class ChatbotInteractions {
     [KernelFunction, Description("Searches the Northern Mountains catalog for a provided product description")]
     public async Task<string> SearchCatalog([Description("The product description for which to search")] string productDescription) {
         try {
-            var results = await _catalogService.SearchCatalog(new PaginationRequest {
-                PageIndex = 0,
-                PageSize = 8
-            }, productDescription);
-            return JsonSerializer.Serialize(results);
+            // get TOP-3 items
+            var result = await _catalogService.SearchCatalog(
+                skip: 0,
+                take: 3,
+                searchQuery: productDescription
+            );
+            return JsonSerializer.Serialize(result.Data.Select(x =>
+                new ChatCatalogItemResultDto(x.Name, x.Description, x.Price)));
         } catch (HttpRequestException e) {
             return Error(e, "Error accessing catalog.");
         }
@@ -63,4 +66,7 @@ public sealed class ChatbotInteractions {
         }
         return message;
     }
+
+    // reduce result size to only include data that is interesting for the LLM
+    private sealed record ChatCatalogItemResultDto(string Name, string Description, decimal Price);
 }

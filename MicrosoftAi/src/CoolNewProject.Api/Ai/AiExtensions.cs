@@ -1,6 +1,5 @@
 ﻿using System.Data.Common;
 using Aspire.Azure.AI.OpenAI;
-using CoolNewProject.Domain.Chatbot;
 using Microsoft.SemanticKernel;
 
 namespace CoolNewProject.Api.Ai;
@@ -22,16 +21,19 @@ public static class AiExtensions {
         // Add OpenAI chat completion service
         var openAiConnectionString = builder.Configuration.GetConnectionString("openai");
         if (!string.IsNullOrWhiteSpace(openAiConnectionString)) {
-            // AddAzureOpenAIChatCompletion resolves this client
-            builder.Services.AddSingleton(new HttpClient {
+            // CAUTION: with this definition the OpenAI api client does not use standard resilience
+            //          when the http client is not defined here the standard resilience timeout if used which is not enough
+            //          haven't found a way yet to use standard resilience with custom timeouts
+            var httpClient = new HttpClient() {
                 Timeout = TimeSpan.FromMinutes(5)
-            });
-
+            };
+            // AddAzureOpenAIChatCompletion resolves this client
             var azureOpenAiSettings = ParseOpenAiConnectionString(openAiConnectionString);
             kernelBuilder.AddAzureOpenAIChatCompletion(
                 deploymentName: "gpt-4",
                 endpoint: azureOpenAiSettings.Endpoint?.ToString() ?? throw new InvalidOperationException(),
-                apiKey: azureOpenAiSettings.Key ?? throw new InvalidOperationException()
+                apiKey: azureOpenAiSettings.Key ?? throw new InvalidOperationException(),
+                httpClient: httpClient
             );
         }
     }

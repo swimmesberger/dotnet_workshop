@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Http.Resilience;
 using Microsoft.Extensions.Logging;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
@@ -10,15 +12,24 @@ using OpenTelemetry.Trace;
 
 namespace CoolNewProject.ServiceDefaults;
 
+public sealed record ServiceDefaultsConfiguration {
+    public bool EnableStandardResilience { get; init; } = true;
+}
+
 public static partial class Extensions {
-    public static IHostApplicationBuilder AddServiceDefaults(this IHostApplicationBuilder builder) {
+    public static IHostApplicationBuilder AddServiceDefaults(this IHostApplicationBuilder builder,
+        ServiceDefaultsConfiguration? configuration = null) {
+        configuration ??= new ServiceDefaultsConfiguration();
+
         builder.AddBasicServiceDefaults();
 
         builder.Services.AddServiceDiscovery();
 
         builder.Services.ConfigureHttpClientDefaults(http => {
-            // Turn on resilience by default
-            http.AddStandardResilienceHandler();
+            if (configuration.EnableStandardResilience) {
+                // Turn on resilience by default
+                http.AddStandardResilienceHandler();
+            }
 
             // Turn on service discovery by default
             http.UseServiceDiscovery();
