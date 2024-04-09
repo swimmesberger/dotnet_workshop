@@ -35,6 +35,10 @@ app.MapGroup("/api/v1/chatbot")
     .WithTags("Chatbot API")
     .MapChatbotApi();
 
+app.MapGroup("/api/v1/basket")
+    .WithTags("Basket API")
+    .MapBasketApi();
+
 app.Run();
 return;
 

@@ -1,0 +1,25 @@
+﻿@attribute [StreamRendering]
+@inject BasketService Basket
+
+<a aria-label="cart" href="cart">
+    <img role="presentation" src="icons/cart.svg"/>
+    @if (_basketItems?.Count > 0) {
+        <span class="cart-badge">@TotalQuantity</span>
+    }
+</a>
+
+@code {
+    private IReadOnlyCollection<BasketItem>? _basketItems;
+
+    [CascadingParameter] public HttpContext? HttpContext { get; set; }
+
+    private int? TotalQuantity => _basketItems?.Sum(i => i.Quantity);
+
+    protected override async Task OnInitializedAsync() {
+        await UpdateBasketItemsAsync();
+    }
+
+    private async Task UpdateBasketItemsAsync() {
+        _basketItems = await Basket.GetBasketItemsAsync();
+    }
+}

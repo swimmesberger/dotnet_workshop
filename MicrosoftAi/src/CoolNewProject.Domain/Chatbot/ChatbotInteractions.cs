@@ -30,7 +30,7 @@ public sealed class ChatbotInteractions {
                 searchQuery: productDescription
             );
             return JsonSerializer.Serialize(result.Data.Select(x =>
-                new ChatCatalogItemResultDto(x.Name, x.Description,
+                new ChatCatalogItemResultDto(x.Id, x.Name, x.Description,
                     x.CatalogType.Type, x.CatalogBrand.Brand, x.Price)));
         } catch (HttpRequestException e) {
             return Error(e, "Error accessing catalog.");
@@ -68,5 +68,5 @@ public sealed class ChatbotInteractions {
     }
 
     // reduce result size to only include data that is interesting for the LLM
-    private sealed record ChatCatalogItemResultDto(string Name, string Description, string Type, string Brand, decimal Price);
+    private sealed record ChatCatalogItemResultDto(int ItemId, string Name, string Description, string Type, string Brand, decimal Price);
 }

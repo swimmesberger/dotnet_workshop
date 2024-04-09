@@ -1,5 +1,6 @@
 using CoolNewProject.ServiceDefaults;
 using CoolNewProject.WebApp;
+using CoolNewProject.WebApp.Basket;
 using CoolNewProject.WebApp.Catalog;
 using CoolNewProject.WebApp.Chatbot;
 
@@ -16,6 +17,7 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddHttpForwarderWithServiceDiscovery();
 builder.AddCatalogServices();
+builder.AddBasketServices();
 builder.AddChatbotServices();
 
 WebApplication app = builder.Build();
