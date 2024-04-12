@@ -1,0 +1,36 @@
+﻿[
+    {
+        "type": "function",
+        "function": {
+            "name": "retrieve_payment_status",
+            "description": "Get payment status of a transaction",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "transaction_id": {
+                        "type": "string",
+                        "description": "The transaction id."
+                    }
+                },
+                "required": ["transaction_id"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "retrieve_payment_date",
+            "description": "Get payment date of a transaction",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "transaction_id": {
+                        "type": "string",
+                        "description": "The transaction id."
+                    }
+                },
+                "required": ["transaction_id"]
+            }
+        }
+    }
+]

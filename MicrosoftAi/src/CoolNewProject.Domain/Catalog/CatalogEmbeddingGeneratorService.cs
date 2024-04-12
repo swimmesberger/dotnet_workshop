@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel.Embeddings;
 using Pgvector;
+#pragma warning disable SKEXP0001
 
 namespace CoolNewProject.Domain.Catalog;
 
