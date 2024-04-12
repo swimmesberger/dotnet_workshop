@@ -10,17 +10,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\CoolNewProject.Core.Ai\CoolNewProject.Core.Ai.csproj" />
     <ProjectReference Include="..\CoolNewProject.Domain\CoolNewProject.Domain.csproj"/>
     <ProjectReference Include="..\CoolNewProject.ServiceDefaults\CoolNewProject.ServiceDefaults.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" />
-    <PackageReference Include="Aspire.Azure.AI.OpenAI" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="SmartComponents.LocalEmbeddings.SemanticKernel" />
   </ItemGroup>
 </Project>

@@ -1,5 +1,5 @@
 ﻿using System.Data.Common;
-using Aspire.Azure.AI.OpenAI;
+using CoolNewProject.Core.Ai;
 using Microsoft.SemanticKernel;
 
 namespace CoolNewProject.Api.Ai;
@@ -31,8 +31,8 @@ public static class AiExtensions {
             var azureOpenAiSettings = ParseOpenAiConnectionString(openAiConnectionString);
             kernelBuilder.AddAzureOpenAIChatCompletion(
                 deploymentName: "gpt-4",
-                endpoint: azureOpenAiSettings.Endpoint?.ToString() ?? throw new InvalidOperationException(),
-                apiKey: azureOpenAiSettings.Key ?? throw new InvalidOperationException(),
+                endpoint: azureOpenAiSettings.Endpoint.ToString(),
+                apiKey: azureOpenAiSettings.Key,
                 httpClient: httpClient
             );
         }
@@ -42,16 +42,22 @@ public static class AiExtensions {
         var connectionBuilder = new DbConnectionStringBuilder {
             ConnectionString = connectionString
         };
-        var azureOpenAiSettings = new AzureOpenAISettings();
+        Uri? endpoint = null;
+        string key = string.Empty;
         if (connectionBuilder.ContainsKey(ConnectionStringEndpoint) &&
             Uri.TryCreate(connectionBuilder[ConnectionStringEndpoint].ToString(), UriKind.Absolute, out var serviceUri)) {
-            azureOpenAiSettings.Endpoint = serviceUri;
+            endpoint = serviceUri;
         } else if (Uri.TryCreate(connectionString, UriKind.Absolute, out var uri)) {
-            azureOpenAiSettings.Endpoint = uri;
+            endpoint = uri;
         }
         if (connectionBuilder.ContainsKey(ConnectionStringKey)) {
-            azureOpenAiSettings.Key = connectionBuilder[ConnectionStringKey].ToString();
+            key = connectionBuilder[ConnectionStringKey].ToString() ?? string.Empty;
         }
-        return azureOpenAiSettings;
+
+        if (endpoint == null || string.IsNullOrEmpty(key))
+            throw new ArgumentException("Invalid azure OpenAI connection string");
+        return new AzureOpenAISettings(endpoint, key);
     }
+
+    private sealed record AzureOpenAISettings(Uri Endpoint, string Key);
 }

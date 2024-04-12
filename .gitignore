@@ -8,3 +8,4 @@ riderModule.iml
 /MicrosoftAi/.idea
 /MicrosoftAi/MicrosoftAi.sln.DotSettings.user
 /MicrosoftAi/src/CoolNewProject.Api/appsettings.Development.json
+/MicrosoftAi/src/CoolNewProject.Core.Ai/.cache

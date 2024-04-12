@@ -13,7 +13,6 @@
     <!-- Version together with Aspire -->
     <PackageVersion Include="Aspire.Hosting" Version="$(AspireVersion)" />
     <PackageVersion Include="Aspire.Hosting.Azure" Version="$(AspireVersion)" />
-    <PackageVersion Include="Aspire.Azure.AI.OpenAI" Version="$(AspireVersion)" />
     <PackageVersion Include="Aspire.Npgsql" Version="$(AspireVersion)" />
     <PackageVersion Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="$(AspireVersion)" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="$(EfVersion)" />
@@ -27,8 +26,10 @@
     <PackageVersion Include="Microsoft.AspNetCore.TestHost" Version="$(AspnetVersion)" />
     <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="$(MicrosoftExtensionsVersion)" />
     <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery.Yarp" Version="$(AspireVersion)" />
-    <PackageVersion Include="Microsoft.SemanticKernel.Abstractions" Version="1.6.3" />
-    <PackageVersion Include="Microsoft.SemanticKernel.Connectors.OpenAI" Version="1.6.3" />
+    <PackageVersion Include="Microsoft.SemanticKernel.Abstractions" Version="1.7.1" />
+    <PackageVersion Include="Microsoft.SemanticKernel.Connectors.HuggingFace" Version="1.7.1-preview" />
+    <PackageVersion Include="Microsoft.SemanticKernel.Connectors.Onnx" Version="1.7.1-alpha" />
+    <PackageVersion Include="Microsoft.SemanticKernel.Connectors.OpenAI" Version="1.7.1" />
     <!-- Version together with EF -->
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.2" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="$(EfVersion)" />
@@ -56,7 +57,6 @@
     <!-- Miscellaneous -->
     <PackageVersion Include="Microsoft.Web.LibraryManager.Build" Version="2.1.175" />
     <PackageVersion Include="Polly" Version="8.3.1" />
-    <PackageVersion Include="SmartComponents.LocalEmbeddings.SemanticKernel" Version="0.1.0-preview10147" />
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     <PackageVersion Include="System.Reflection.TypeExtensions" Version="4.7.0" />
     <!-- Test Dependencies -->

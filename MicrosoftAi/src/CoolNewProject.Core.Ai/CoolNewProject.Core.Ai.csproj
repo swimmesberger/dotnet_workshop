@@ -1,0 +1,7 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="build/EmbeddingModel.targets" />
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SemanticKernel.Abstractions" />
+    <PackageReference Include="Microsoft.SemanticKernel.Connectors.Onnx" />
+  </ItemGroup>
+</Project>
