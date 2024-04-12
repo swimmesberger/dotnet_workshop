@@ -1,4 +1,6 @@
-﻿[
+﻿// tool use templates
+// e.g. see: https://huggingface.co/Xenova/c4ai-command-r-v01-tokenizer/blob/main/tokenizer_config.json
+[
     {
         "type": "function",
         "function": {
