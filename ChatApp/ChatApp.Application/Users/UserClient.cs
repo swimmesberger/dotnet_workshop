@@ -1,5 +1,5 @@
-﻿using ChatApp.Actor.Abstractions;
-using ChatApp.Domain.Users;
+﻿using ChatApp.Application.Domain.Users;
+using ChatApp.Common.Actor.Abstractions;
 
 namespace ChatApp.Application.Users;
 
@@ -14,7 +14,7 @@ public sealed class UserClient {
         return await _actorRef.Ask(new CreateUserCommand {
             Username = username
         }, new RequestOptions {
-            RequestId = options?.RequestId
+            Headers = options?.Headers
         }, cancellationToken: cancellationToken);
     }
 
@@ -22,13 +22,13 @@ public sealed class UserClient {
         return await _actorRef.Ask(new GetUserByIdQuery {
             Id = id
         }, new RequestOptions {
-            RequestId = options?.RequestId
+            Headers = options?.Headers
         }, cancellationToken: cancellationToken);
     }
 
     public async Task<List<User>> GetAllUsersAsync(ClientRequestOptions? options = null, CancellationToken cancellationToken = default) {
         return await _actorRef.Ask(new GetAllUsersQuery(), new RequestOptions {
-            RequestId = options?.RequestId
+            Headers = options?.Headers
         }, cancellationToken: cancellationToken);
     }
 }

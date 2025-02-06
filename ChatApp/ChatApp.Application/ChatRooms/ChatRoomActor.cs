@@ -1,6 +1,5 @@
-﻿using System.Runtime.ExceptionServices;
-using ChatApp.Actor.Abstractions;
-using ChatApp.Domain.ChatRooms;
+﻿using ChatApp.Application.Domain.ChatRooms;
+using ChatApp.Common.Actor.Abstractions;
 
 namespace ChatApp.Application.ChatRooms;
 
@@ -11,41 +10,41 @@ public sealed class ChatRoomActor : IActor {
         _chatRoomService = chatRoomService;
     }
 
-    public async ValueTask OnLetter(Envelope envelope, CancellationToken cancellationToken = default) {
+    public async ValueTask OnLetter(Envelope letter) {
         try {
-            switch (envelope.Body) {
+            switch (letter.Body) {
                 case CreateChatRoomCommand createCommand:
-                    var createdChatRoom = await _chatRoomService.CreateChatRoomAsync(createCommand.Name, cancellationToken);
-                    envelope.Sender.Tell(new CreateChatRoomCommand.Reply {
+                    var createdChatRoom = await _chatRoomService.CreateChatRoomAsync(createCommand.Name, letter.CancellationToken);
+                    letter.Sender.Tell(new CreateChatRoomCommand.Reply {
                         State = createdChatRoom
                     });
                     break;
                 case GetAllChatRoomsQuery:
-                    var queriedChatRooms = await _chatRoomService.GetAllChatRoomsAsync(cancellationToken);
-                    envelope.Sender.Tell(new GetAllChatRoomsQuery.Reply {
+                    var queriedChatRooms = await _chatRoomService.GetAllChatRoomsAsync(letter.CancellationToken);
+                    letter.Sender.Tell(new GetAllChatRoomsQuery.Reply {
                         State = queriedChatRooms
                     });
                     break;
                 case GetChatRoomByIdQuery getQuery:
-                    var queriedChatRoom = await _chatRoomService.GetChatRoomByIdAsync(getQuery.Id, cancellationToken);
-                    envelope.Sender.Tell(new GetChatRoomByIdQuery.Reply {
+                    var queriedChatRoom = await _chatRoomService.GetChatRoomByIdAsync(getQuery.Id, letter.CancellationToken);
+                    letter.Sender.Tell(new GetChatRoomByIdQuery.Reply {
                         State = queriedChatRoom
                     });
                     break;
                 case SendMessageCommand sendMessageCommand:
                     var message = await _chatRoomService.SendMessageAsync(sendMessageCommand.ChatRoomId, sendMessageCommand.SenderUserId,
-                        sendMessageCommand.Content, cancellationToken);
-                    envelope.Sender.Tell(new SendMessageCommand.Reply {
+                        sendMessageCommand.Content, letter.CancellationToken);
+                    letter.Sender.Tell(new SendMessageCommand.Reply {
                         State = message
                     });
                     break;
                 default:
-                    envelope.Sender.Tell(new FailureReply(ExceptionDispatchInfo.Capture(new ArgumentException("Unhandled message"))));
+                    letter.Sender.Tell(new FailureReply(new ArgumentException("Unhandled message")));
                     break;
                 // Add more cases for other commands as needed
             }
         } catch (Exception ex) {
-            envelope.Sender.Tell(new FailureReply(ExceptionDispatchInfo.Capture(ex)));
+            letter.Sender.Tell(new FailureReply(ex));
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using ChatApp.Domain;
+﻿using ChatApp.Application.Domain;
 
 namespace ChatApp.Api.Infrastructure;
 

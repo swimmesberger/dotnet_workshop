@@ -1,15 +1,44 @@
 ﻿using ChatApp.Application;
+using ChatApp.Common;
+using ChatApp.Common.Actor.Abstractions;
+using ChatApp.Common.Actor.Local;
 
 namespace ChatApp.Api.Infrastructure;
 
+/// <summary>
+/// This shows an example how to override the actor service scope behaviour.
+/// In this example the service scope is provided by the web request services.
+/// </summary>
 public static class ActorWebExtensions {
-    public static IApplicationBuilder UseWebServiceScope(this IApplicationBuilder app) {
-        ArgumentNullException.ThrowIfNull(app);
-        return app.Use(async (context, next) => {
-            var actorServiceProvider = context.RequestServices.GetRequiredService<ActorServiceScopeProvider>();
-            string requestId = context.TraceIdentifier;
-            using var _ = actorServiceProvider.SetServiceProvider(requestId, context.RequestServices);
-            await next();
-        });
+    public static IServiceCollection AddActorWebServiceScope(this IServiceCollection services) {
+        services.AddSingleton<WebActorServiceScopeProvider>();
+        services.AddSingleton<IActorServiceScopeProvider>(sp => sp.GetRequiredService<WebActorServiceScopeProvider>());
+        return services;
+    }
+
+    public static ClientRequestOptions ToClientRequestOptions(this HttpContext context) {
+        return new ClientRequestOptions {
+            Headers = new Dictionary<string, object> {
+                { WebActorServiceScopeProvider.RequestServiceKey, context.RequestServices }
+            }
+        };
+    }
+
+    private sealed class WebActorServiceScopeProvider : IActorServiceScopeProvider {
+        public const string RequestServiceKey = "X-Request-Services";
+
+        private readonly SimpleActorServiceScopeProvider _simpleProvider;
+
+        public WebActorServiceScopeProvider(IServiceScopeFactory serviceScopeFactory) {
+            _simpleProvider = new SimpleActorServiceScopeProvider(serviceScopeFactory);
+        }
+
+        public IServiceScope GetActorScope(Envelope letter, ActorOptions options) {
+            if (letter.Headers.TryGetValue(RequestServiceKey, out var scope) && scope is IServiceProvider serviceProvider) {
+                // discard dispose functionality to prevent double dispose
+                return new DelegateServiceScope(serviceProvider);
+            }
+            return _simpleProvider.GetActorScope(letter, options);
+        }
     }
 }

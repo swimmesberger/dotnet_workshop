@@ -1,5 +1,5 @@
-﻿using ChatApp.Actor.Abstractions;
-using ChatApp.Domain.ChatRooms;
+﻿using ChatApp.Application.Domain.ChatRooms;
+using ChatApp.Common.Actor.Abstractions;
 
 namespace ChatApp.Application.ChatRooms;
 
@@ -14,7 +14,7 @@ public sealed class ChatRoomClient {
         return await _actorRef.Ask(new CreateChatRoomCommand {
             Name = name
         }, new RequestOptions {
-            RequestId = options?.RequestId
+            Headers = options?.Headers
         }, cancellationToken: cancellationToken);
     }
 
@@ -22,7 +22,7 @@ public sealed class ChatRoomClient {
         return await _actorRef.Ask(new GetChatRoomByIdQuery {
             Id = id
         }, new RequestOptions {
-            RequestId = options?.RequestId
+            Headers = options?.Headers
         }, cancellationToken: cancellationToken);
     }
 
@@ -32,13 +32,13 @@ public sealed class ChatRoomClient {
             SenderUserId = senderUserId,
             Content = content
         }, new RequestOptions {
-            RequestId = options?.RequestId
+            Headers = options?.Headers
         }, cancellationToken: cancellationToken);
     }
 
     public async Task<List<ChatRoom>> GetAllChatRoomsAsync(ClientRequestOptions? options = null, CancellationToken cancellationToken = default) {
         return await _actorRef.Ask(new GetAllChatRoomsQuery(), new RequestOptions {
-            RequestId = options?.RequestId
+            Headers = options?.Headers
         }, cancellationToken: cancellationToken);
     }
 
@@ -46,7 +46,7 @@ public sealed class ChatRoomClient {
         return await _actorRef.Ask(new GetAllMessageByRoomIdQuery {
             ChatRoomId = chatRoomId
         }, new RequestOptions {
-            RequestId = options?.RequestId
+            Headers = options?.Headers
         }, cancellationToken: cancellationToken);
     }
 }
