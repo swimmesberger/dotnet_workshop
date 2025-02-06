@@ -28,6 +28,7 @@
     <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery.Yarp" Version="$(AspireVersion)" />
     <PackageVersion Include="Microsoft.SemanticKernel.Abstractions" Version="1.7.1" />
     <PackageVersion Include="Microsoft.SemanticKernel.Connectors.OpenAI" Version="1.7.1" />
+    <PackageVersion Include="Microsoft.SemanticKernel.Connectors.Onnx" Version="1.7.1-alpha" />
     <!-- Version together with EF -->
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.2" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="$(EfVersion)" />
