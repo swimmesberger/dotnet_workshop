@@ -1,4 +1,4 @@
-﻿namespace ChatApp.Common.Actors.Exceptions;
+﻿namespace ChatApp.Actor.Exceptions;
 
 public sealed class AskTimeoutException : ActorException {
     public AskTimeoutException() { }

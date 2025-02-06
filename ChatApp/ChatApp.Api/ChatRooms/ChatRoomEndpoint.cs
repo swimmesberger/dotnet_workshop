@@ -1,4 +1,6 @@
-﻿using CAP.Infrastructure;
+﻿using ChatApp.Api.Infrastructure;
+using ChatApp.Application;
+using ChatApp.Application.ChatRooms;
 using ChatApp.Domain.ChatRooms;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -17,36 +19,51 @@ public sealed class ChatRoomEndpoint : EndpointGroupBase {
 
     public async Task<Created<ChatRoom>> CreateChatRoom(
         [FromBody] CreateChatRoomRequest request,
-        [FromServices] IChatRoomService service,
+        [FromServices] ChatRoomClient client,
+        HttpContext context,
         CancellationToken cancellationToken = default
     ) {
-        var chatRoom = await service.CreateChatRoomAsync(request.Name, cancellationToken);
+        var chatRoom = await client.CreateChatRoomAsync(request.Name, new ClientRequestOptions {
+            RequestId = context.TraceIdentifier
+        }, cancellationToken);
         return TypedResults.Created($"{this.GetPath()}/{chatRoom.Id}", chatRoom);
     }
 
     private async Task<ChatRoom?> GetChatRoomById(
         [FromRoute] int id,
-        [FromServices] IChatRoomService service,
+        [FromServices] ChatRoomClient client,
+        HttpContext context,
         CancellationToken cancellationToken = default
-    ) => await service.GetChatRoomByIdAsync(id, cancellationToken);
+    ) => await client.GetChatRoomByIdAsync(id, new ClientRequestOptions {
+        RequestId = context.TraceIdentifier
+    }, cancellationToken);
 
     private async Task<List<ChatRoom>> GetAllChatRooms(
-        [FromServices] IChatRoomService service,
+        [FromServices] ChatRoomClient client,
+        HttpContext context,
         CancellationToken cancellationToken = default
-    ) => await service.GetAllChatRoomsAsync(cancellationToken);
+    ) => await client.GetAllChatRoomsAsync(new ClientRequestOptions {
+        RequestId = context.TraceIdentifier
+    },cancellationToken);
 
     private async Task<List<ChatMessage>> GetAllMessagesByRoomIdAsync(
         [FromRoute] int id,
-        [FromServices] IChatRoomService service,
+        [FromServices] ChatRoomClient client,
+        HttpContext context,
         CancellationToken cancellationToken = default
-    ) => await service.GetAllMessagesByRoomIdAsync(id, cancellationToken);
+    ) => await client.GetAllMessagesByRoomIdAsync(id, new ClientRequestOptions {
+        RequestId = context.TraceIdentifier
+    }, cancellationToken);
 
     private async Task<ChatMessage> SendMessage(
         [FromRoute] int id,
         [FromBody] SendMessageRequest request,
-        [FromServices] IChatRoomService service,
+        [FromServices] ChatRoomClient client,
+        HttpContext context,
         CancellationToken cancellationToken = default
-    ) => await service.SendMessageAsync(id, request.SenderUserId, request.Content, cancellationToken);
+    ) => await client.SendMessageAsync(id, request.SenderUserId, request.Content, new ClientRequestOptions {
+        RequestId = context.TraceIdentifier
+    }, cancellationToken);
 
     public sealed record CreateChatRoomRequest {
         public required string Name { get; init; }

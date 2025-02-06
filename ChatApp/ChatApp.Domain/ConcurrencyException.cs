@@ -1,4 +1,4 @@
-﻿namespace CAP;
+﻿namespace ChatApp.Domain;
 
 public sealed class ConcurrencyException : Exception {
     public ConcurrencyException() { }

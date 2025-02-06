@@ -1,7 +1,5 @@
 ﻿using ChatApp.Application.ChatRooms;
 using ChatApp.Application.Users;
-using ChatApp.Domain.ChatRooms;
-using ChatApp.Domain.Users;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ChatApp.Application;
@@ -13,9 +11,9 @@ public static class ApplicationServiceExtensions {
             .MapActor<ChatRoomActor>()
             .MapActor<UserActor>();
         services.AddScoped<ChatRoomService>();
-        services.AddScoped<IChatRoomService, ChatRoomClient>();
+        services.AddScoped<ChatRoomClient>();
         services.AddScoped<UserService>();
-        services.AddScoped<IUserService, UserClient>();
+        services.AddScoped<UserClient>();
         return services;
     }
 }

@@ -1,5 +1,4 @@
-﻿using CAP;
-using CAP.Infrastructure;
+﻿using ChatApp.Domain;
 
 namespace ChatApp.Api.Infrastructure;
 

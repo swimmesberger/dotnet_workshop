@@ -1,4 +1,4 @@
-﻿namespace CAP.Infrastructure;
+﻿namespace ChatApp.Api.Infrastructure;
 
 public static class EndpointRouteBuilderExtensions {
     public static string GetPath(this EndpointGroupBase group) {

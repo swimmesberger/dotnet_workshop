@@ -1,5 +1,5 @@
 ﻿using System.Runtime.ExceptionServices;
-using ChatApp.Common.Actors;
+using ChatApp.Actor.Abstractions;
 using ChatApp.Domain.ChatRooms;
 
 namespace ChatApp.Application.ChatRooms;

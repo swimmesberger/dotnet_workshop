@@ -6,5 +6,6 @@ builder.AddWebApi();
 builder.Services.AddApplicationServices();
 
 var app = builder.Build();
+app.UseWebServiceScope();
 app.MapWebApi();
 app.Run();

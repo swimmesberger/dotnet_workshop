@@ -1,4 +1,6 @@
-﻿using CAP.Infrastructure;
+﻿using ChatApp.Api.Infrastructure;
+using ChatApp.Application;
+using ChatApp.Application.Users;
 using ChatApp.Domain.Users;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -15,24 +17,33 @@ public sealed class UserEndpoint : EndpointGroupBase {
 
     public async Task<Created<User>> CreateUser(
         [FromBody] CreateUserRequest request,
-        [FromServices] IUserService service,
+        [FromServices] UserClient client,
+        HttpContext httpContext,
         CancellationToken cancellationToken = default
     ) {
-        var chatRoom = await service.CreateUserAsync(request.Name, cancellationToken);
+        var chatRoom = await client.CreateUserAsync(request.Name, new ClientRequestOptions {
+          RequestId  = httpContext.TraceIdentifier
+        }, cancellationToken);
         return TypedResults.Created($"{this.GetPath()}/{chatRoom.Id}", chatRoom);
     }
 
     private async Task<User?> GetUserById(
         [FromRoute] int id,
-        [FromServices] IUserService service,
+        [FromServices] UserClient client,
+        HttpContext httpContext,
         CancellationToken cancellationToken = default
-    ) => await service.GetUserByIdAsync(id, cancellationToken);
+    ) => await client.GetUserByIdAsync(id, new ClientRequestOptions {
+        RequestId  = httpContext.TraceIdentifier
+    }, cancellationToken);
 
 
     private async Task<List<User>> GetAllUsers(
-        [FromServices] IUserService service,
+        [FromServices] UserClient client,
+        HttpContext httpContext,
         CancellationToken cancellationToken = default
-    ) => await service.GetAllUsersAsync(cancellationToken);
+    ) => await client.GetAllUsersAsync(new ClientRequestOptions {
+        RequestId  = httpContext.TraceIdentifier
+    }, cancellationToken);
 
     public sealed record CreateUserRequest {
         public required string Name { get; init; }

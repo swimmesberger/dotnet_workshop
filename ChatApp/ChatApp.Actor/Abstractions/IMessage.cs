@@ -1,8 +1,12 @@
 ﻿using System.Runtime.ExceptionServices;
 
-namespace ChatApp.Common.Actors;
+namespace ChatApp.Actor.Abstractions;
 
-public interface IMessage;
+public interface IMessage {
+    public static readonly IMessage Unknown = new UnknownMessage();
+
+    private sealed class UnknownMessage : IMessage;
+}
 
 public interface IReply<out T> : IMessage {
     T State { get; }
@@ -38,4 +42,6 @@ public sealed class FailureReply : IMessage {
     public FailureReply(ExceptionDispatchInfo? exception = null) {
         Exception = exception;
     }
+
+    public FailureReply(Exception? exception) : this(exception == null ? null : ExceptionDispatchInfo.Capture(exception)) { }
 }
