@@ -14,9 +14,6 @@ public sealed class ChatRoomManagementActor : IActor {
         try {
             switch (letter.Body) {
                 case InitiateCommand:
-                    await _chatRoomService.InitializeAsync(letter.CancellationToken);
-                    letter.Sender.Tell(SuccessReply.Instance);
-                    break;
                 case PassivateCommand:
                     letter.Sender.Tell(SuccessReply.Instance);
                     break;

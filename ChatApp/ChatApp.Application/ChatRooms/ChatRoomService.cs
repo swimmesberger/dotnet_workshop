@@ -19,7 +19,7 @@ public sealed class ChatRoomService {
     }
 
     public async Task InitializeAsync(ChatRoom chatRoom, CancellationToken cancellationToken = default) {
-        if (_storage.State != null) {
+        if (_storage.RecordExists) {
             // Already initialized
            return;
         }

@@ -6,6 +6,11 @@ public sealed class InMemoryStorage<T> : IStorage<T> where T: class {
 
     public T? State { get; set; }
 
+    public InMemoryStorage() {
+        State = Activator.CreateInstance<T>();
+        RecordExists = false;
+    }
+
     public ValueTask ReadStateAsync(CancellationToken cancellationToken = default) {
         State = _savedState;
         return ValueTask.CompletedTask;

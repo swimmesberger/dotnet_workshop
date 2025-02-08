@@ -26,14 +26,6 @@ public sealed class ChatRoomManagementService {
         _actorSystem = actorSystem;
     }
 
-    public async Task InitializeAsync(CancellationToken cancellationToken = default) {
-        await _storage.ReadStateAsync(cancellationToken);
-        if (!_storage.RecordExists) {
-            State = new ChatRoomManagementState();
-            await _storage.SaveStateAsync(cancellationToken);
-        }
-    }
-
     public async Task<ChatRoom> CreateChatRoomAsync(string name, CancellationToken cancellationToken = default) {
         var chatRoom = new ChatRoom {
             Id = ChatRooms.Count + 1,
