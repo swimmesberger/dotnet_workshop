@@ -13,10 +13,11 @@ public sealed class ChatRoomEndpoint : EndpointGroupBase {
         routeBuilder.MapGet("/{id:int}/message", GetAllMessagesByRoomIdAsync).WithDefaultMetadata();
 
         routeBuilder.MapPost("/", CreateChatRoom).WithDefaultMetadata();
+        routeBuilder.MapPost("/{id:int}/user", JoinChatRoom).WithDefaultMetadata();
         routeBuilder.MapPost("/{id:int}/message", SendMessage).WithDefaultMetadata();
     }
 
-    public async Task<Created<ChatRoom>> CreateChatRoom(
+    private async Task<Created<ChatRoom>> CreateChatRoom(
         [FromBody] CreateChatRoomRequest request,
         [FromServices] ChatRoomClient client,
         HttpContext context,
@@ -24,6 +25,16 @@ public sealed class ChatRoomEndpoint : EndpointGroupBase {
     ) {
         var chatRoom = await client.CreateChatRoomAsync(request.Name, context.ToClientRequestOptions(), cancellationToken);
         return TypedResults.Created($"{this.GetPath()}/{chatRoom.Id}", chatRoom);
+    }
+
+    private async Task JoinChatRoom(
+        [FromRoute] int id,
+        [FromBody] JoinChatRoomRequest request,
+        [FromServices] ChatRoomClient client,
+        HttpContext context,
+        CancellationToken cancellationToken = default
+    ) {
+        await client.JoinChatRoomAsync(id, request.JoinUserId, context.ToClientRequestOptions(), cancellationToken);
     }
 
     private async Task<ChatRoom?> GetChatRoomById(
@@ -56,6 +67,10 @@ public sealed class ChatRoomEndpoint : EndpointGroupBase {
 
     public sealed record CreateChatRoomRequest {
         public required string Name { get; init; }
+    }
+
+    public sealed record JoinChatRoomRequest {
+        public required int JoinUserId { get; init; }
     }
 
     public sealed record SendMessageRequest {

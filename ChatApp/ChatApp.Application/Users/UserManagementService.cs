@@ -12,7 +12,10 @@ public sealed class UserManagementService {
     private readonly ILogger<UserManagementService> _logger;
     private readonly IStorage<UserState> _storage;
 
-    private UserState State => _storage.State;
+    private UserState State {
+        get => _storage.State;
+        set => _storage.State = value;
+    }
     private Dictionary<int, User> Users => State.Users;
 
     public UserManagementService(ILogger<UserManagementService> logger, IStorage<UserState> storage) {
@@ -25,7 +28,7 @@ public sealed class UserManagementService {
             Id = Users.Count + 1,
             Username = username
         };
-        _logger.LogInformation($"Processing user: {user.Username}");
+        _logger.LogInformation("Processing user: {UserUsername}", user.Username);
         Users[user.Id] = user;
         await _storage.SaveStateAsync(cancellationToken);
         return new User(user);

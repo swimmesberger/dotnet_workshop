@@ -4,15 +4,16 @@ public sealed class InMemoryStorage<T> : IStorage<T> where T: class {
     private T? _savedState;
     public bool RecordExists { get; private set; }
 
-    public T? State { get; set; }
+    public T State { get; set; } = null!;
 
     public InMemoryStorage() {
-        State = Activator.CreateInstance<T>();
-        RecordExists = false;
+        ClearState();
     }
 
     public ValueTask ReadStateAsync(CancellationToken cancellationToken = default) {
-        State = _savedState;
+        if (RecordExists) {
+            State = _savedState!;
+        }
         return ValueTask.CompletedTask;
     }
 
@@ -23,9 +24,13 @@ public sealed class InMemoryStorage<T> : IStorage<T> where T: class {
     }
 
     public ValueTask ClearStateAsync(CancellationToken cancellationToken = default) {
+        ClearState();
+        return ValueTask.CompletedTask;
+    }
+
+    private void ClearState() {
         _savedState = null;
         RecordExists = false;
-        State = _savedState;
-        return ValueTask.CompletedTask;
+        State = Activator.CreateInstance<T>();
     }
 }

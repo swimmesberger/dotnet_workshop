@@ -20,6 +20,12 @@ public sealed class ChatRoomActor : IActor {
                     await _chatRoomService.InitializeAsync(initializeCommand.State, letter.CancellationToken);
                     letter.Sender.Tell(SuccessReply.Instance);
                     break;
+                case JoinChatRoomCommand joinCommand:
+                    var joinedChatRoom = await _chatRoomService.JoinAsync(joinCommand.UserId, letter.CancellationToken);
+                    letter.Sender.Tell(new JoinChatRoomCommand.Reply {
+                        State = joinedChatRoom
+                    });
+                    break;
                 case SendChatRoomMessageCommand sendMessageCommand:
                     var message = await _chatRoomService.SendMessageAsync(sendMessageCommand.SenderUserId,
                         sendMessageCommand.Content, letter.CancellationToken);
@@ -73,5 +79,13 @@ public sealed record GetAllChatRoomMessagesQuery : IRequest<List<ChatMessage>, G
 public sealed record GetChatRoomQuery : IRequest<ChatRoom?, GetChatRoomQuery.Reply> {
     public sealed class Reply : IReply<ChatRoom?> {
         public required ChatRoom? State { get; init; }
+    }
+}
+
+public sealed record JoinChatRoomCommand : IRequest<ChatRoom, JoinChatRoomCommand.Reply> {
+    public required int UserId { get; init; }
+
+    public sealed class Reply : IReply<ChatRoom> {
+        public required ChatRoom State { get; init; }
     }
 }

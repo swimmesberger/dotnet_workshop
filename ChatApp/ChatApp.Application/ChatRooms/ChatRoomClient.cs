@@ -21,6 +21,15 @@ public sealed class ChatRoomClient {
         }, cancellationToken: cancellationToken);
     }
 
+    public async Task<ChatRoom> JoinChatRoomAsync(int chatRoomId, int userId, ClientRequestOptions? options = null, CancellationToken cancellationToken = default) {
+        var chatRoomActor = await GetChatRoomActor(chatRoomId, cancellationToken);
+        return await chatRoomActor.Ask(new JoinChatRoomCommand {
+            UserId = userId
+        }, new RequestOptions {
+            Headers = options?.Headers
+        }, cancellationToken: cancellationToken);
+    }
+
     public async Task<List<ChatRoom>> GetAllChatRoomsAsync(ClientRequestOptions? options = null, CancellationToken cancellationToken = default) {
         var chatRoomIds = await _managementActorRef.Ask(new GetAllChatRoomIdsQuery(), new RequestOptions {
             Headers = options?.Headers
