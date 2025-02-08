@@ -1,0 +1,58 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E58D44FD-2674-46F3-B04C-CDFE8C079EFC}"
+	ProjectSection(SolutionItems) = preProject
+		Directory.Packages.props = Directory.Packages.props
+		.editorconfig = .editorconfig
+		.config\dotnet-tools.json = .config\dotnet-tools.json
+		global.json = global.json
+		.gitignore = .gitignore
+		Directory.Build.props = Directory.Build.props
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{BE239119-7AF9-42BC-86FC-841913CDA054}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{235C9218-7C7E-465E-8E25-5B5AD609AF15}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker", "docker", "{3ECF35A0-FE66-494D-A1AA-60A43F7C4242}"
+	ProjectSection(SolutionItems) = preProject
+		docker\docker-compose.yml = docker\docker-compose.yml
+		docker\docker-compose-app.yml = docker\docker-compose-app.yml
+		docker\docker-compose-infrastructure.yml = docker\docker-compose-infrastructure.yml
+		docker\.env = docker\.env
+		docker\traefik\dynamic.yaml = docker\traefik\dynamic.yaml
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChatApp.Api", "ChatApp.Api\ChatApp.Api.csproj", "{8DEB2DA5-B9A4-4071-907E-5A935FDC7A7F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChatApp.Common", "ChatApp.Common\ChatApp.Common.csproj", "{0BA6E47F-7112-4149-8BA3-9C544DEF14C5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChatApp.Application", "ChatApp.Application\ChatApp.Application.csproj", "{53348007-6323-417B-9325-66DC34BED10B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8DEB2DA5-B9A4-4071-907E-5A935FDC7A7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8DEB2DA5-B9A4-4071-907E-5A935FDC7A7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8DEB2DA5-B9A4-4071-907E-5A935FDC7A7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8DEB2DA5-B9A4-4071-907E-5A935FDC7A7F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0BA6E47F-7112-4149-8BA3-9C544DEF14C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0BA6E47F-7112-4149-8BA3-9C544DEF14C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0BA6E47F-7112-4149-8BA3-9C544DEF14C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0BA6E47F-7112-4149-8BA3-9C544DEF14C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{53348007-6323-417B-9325-66DC34BED10B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{53348007-6323-417B-9325-66DC34BED10B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{53348007-6323-417B-9325-66DC34BED10B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{53348007-6323-417B-9325-66DC34BED10B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{3ECF35A0-FE66-494D-A1AA-60A43F7C4242} = {E58D44FD-2674-46F3-B04C-CDFE8C079EFC}
+		{8DEB2DA5-B9A4-4071-907E-5A935FDC7A7F} = {BE239119-7AF9-42BC-86FC-841913CDA054}
+		{0BA6E47F-7112-4149-8BA3-9C544DEF14C5} = {BE239119-7AF9-42BC-86FC-841913CDA054}
+		{53348007-6323-417B-9325-66DC34BED10B} = {BE239119-7AF9-42BC-86FC-841913CDA054}
+	EndGlobalSection
+EndGlobal
