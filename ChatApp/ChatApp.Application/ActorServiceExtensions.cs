@@ -9,13 +9,12 @@ namespace ChatApp.Application;
 public static class ActorServiceExtensions {
     public static ActorServiceBuilder AddActorSystem(this IServiceCollection services) {
         services.AddOptions();
-        services.AddSingleton<LocalActorSystem>();
-        services.AddScoped(typeof(IStorage<>), typeof(InMemoryStorage<>));
-        services.AddTransient<IActorSystem>(sp => sp.GetRequiredService<LocalActorSystem>());
-        services.AddTransient<LocalActorFactory>();
         services.AddSingleton<LocalActorRegistry>();
+        services.AddSingleton<LocalActorSystem>();
+        services.AddTransient<IActorSystem>(sp => sp.GetRequiredService<LocalActorSystem>());
         services.TryAddTransient<IActorServiceScopeProvider, SimpleActorServiceScopeProvider>();
-        services.AddHostedService(sp => sp.GetRequiredService<LocalActorSystem>());
+        services.AddHostedService<LocalActorService>();
+        services.AddScoped(typeof(IStorage<>), typeof(InMemoryStorage<>));
         return new ActorServiceBuilder(services);
     }
 }

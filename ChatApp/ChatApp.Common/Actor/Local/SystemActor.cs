@@ -5,14 +5,12 @@ namespace ChatApp.Common.Actor.Local;
 
 public sealed class SystemActor : IActor {
     private LocalActorContext Context { get; }
-    private LocalActorFactory ActorFactory => Context.ActorFactory;
     private readonly ActorSystemConfiguration _configuration;
-    private readonly LocalActorRegistry _actorRegistry;
+    private LocalActorRegistry ActorRegistry => Context.ActorRegistry;
 
-    public SystemActor(LocalActorContext context, IOptions<ActorSystemConfiguration> actorConfiguration, LocalActorRegistry actorRegistry) {
+    public SystemActor(LocalActorContext context, IOptions<ActorSystemConfiguration> actorConfiguration) {
         Context = context;
         _configuration = actorConfiguration.Value;
-        _actorRegistry = actorRegistry;
     }
 
     public async ValueTask OnLetter(Envelope letter) {
@@ -36,7 +34,7 @@ public sealed class SystemActor : IActor {
                     letter.Sender.Tell(SuccessReply.Instance);
                     break;
                 case PassivateCommand:
-                    List<LocalActorCell> actors = _actorRegistry.CopyAndClear();
+                    List<LocalActorCell> actors = ActorRegistry.CopyAndClear();
                     foreach (var actor in actors) {
                         await actor.StopAsync(letter.CancellationToken);
                     }
@@ -58,12 +56,12 @@ public sealed class SystemActor : IActor {
     }
 
     private IActorRef? GetActor(ActorConfiguration configuration) {
-        return _actorRegistry.GetActor(configuration.ActorType, configuration.Id);
+        return ActorRegistry.GetActor(configuration.ActorType, configuration.Id);
     }
 
     private async ValueTask<IActorRef> CreateActorAsync(ActorConfiguration configuration, CancellationToken cancellationToken = default) {
-        var cell = await ActorFactory.CreateActorAsync(configuration);
-        _actorRegistry.Register(cell);
+        var cell = await Context.ActorFactory.CreateActorAsync(configuration);
+        ActorRegistry.Register(cell);
         await cell.StartAsync(cancellationToken);
         return cell;
     }

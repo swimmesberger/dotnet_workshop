@@ -2,5 +2,5 @@
 
 public sealed record LocalActorOptions {
     public int? MailboxCapacity { get; init; }
-    public BackpressureBehaviour BackpressureBehaviour { get; init; } = BackpressureBehaviour.FailFast;
+    public BackpressureBehaviour BackpressureBehaviour { get; init; } = BackpressureBehaviour.Fail;
 }

@@ -34,11 +34,16 @@ public sealed class LocalActorRegistry {
         }
     }
 
+    public IActorRef? GetActor<T>(string? id = null) where T : IActor {
+        // sync access to the registry without actor access
+        return GetActor(typeof(T), id);
+    }
+
     public IActorRef? GetActor(Type actorType, string? id = null) {
         lock (_actors) {
             IEnumerable<LocalActorCell> cells = _actors;
             if (id != null) {
-                cells = cells.Where(x => x.Context.Id.Equals(id)).ToList();
+                cells = cells.Where(x => x.Context.Id != null && x.Context.Id.Equals(id)).ToList();
             }
             return cells.SingleOrDefault(x => x.ActorType == actorType);
         }

@@ -5,7 +5,7 @@ public interface IActorContext {
 
     Type ActorType { get; }
 
-    IActorFactory ActorFactory { get; }
+    IActorSystem ActorSystem { get; }
 
     IActorRef Self { get; }
 }

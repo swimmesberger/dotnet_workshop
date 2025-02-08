@@ -26,7 +26,7 @@ public sealed class LocalActorCell : IActorRef {
             SingleWriter = false,
             AllowSynchronousContinuations = false,
             FullMode = _options.BackpressureBehaviour switch {
-                BackpressureBehaviour.FailFast => BoundedChannelFullMode.Wait,
+                BackpressureBehaviour.Fail => BoundedChannelFullMode.Wait,
                 BackpressureBehaviour.Wait => BoundedChannelFullMode.Wait,
                 BackpressureBehaviour.DropNewest => BoundedChannelFullMode.DropNewest,
                 BackpressureBehaviour.DropOldest => BoundedChannelFullMode.DropOldest,
@@ -113,7 +113,7 @@ public sealed class LocalActorCell : IActorRef {
     }
 
     private ValueTask WriteLetterAsync(Envelope letter) {
-        if (_options.BackpressureBehaviour == BackpressureBehaviour.FailFast) {
+        if (_options.BackpressureBehaviour == BackpressureBehaviour.Fail) {
             if (!_messageChannel.Writer.TryWrite(letter)) {
                 letter.Sender.Tell(new FailureReply(new BackpressureException("Message channel is full")), this);
             }
