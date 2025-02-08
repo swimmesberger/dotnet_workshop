@@ -21,7 +21,8 @@ internal sealed class SingletonActorProvider : ILocalActorProvider {
         return new ValueTask<IActor>(_actor);
     }
 
-    public static async ValueTask<ILocalActorProvider> CreateAsync(LocalActorInstanceFactory factory, IActorServiceScopeProvider serviceScopeProvider, ActorOptions options) {
+    public static async ValueTask<ILocalActorProvider> CreateAsync(LocalActorInstanceFactory factory,
+        IActorServiceScopeProvider serviceScopeProvider, IActorOptions? options = null) {
         await using var scope = serviceScopeProvider.GetActorAsyncScope(Envelope.Unknown, options);
         var actor = factory.CreateActor(scope.ServiceProvider);
         return new SingletonActorProvider(actor, factory.Context);

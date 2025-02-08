@@ -8,6 +8,7 @@ namespace ChatApp.Common.Actor.Local;
 public sealed class LocalActorCell : IActorRef {
     public Type ActorType => Context.ActorType;
     public LocalActorContext Context => _actorProvider.Context;
+    public ActorConfiguration Configuration => Context.Configuration;
 
     private readonly ILocalActorProvider _actorProvider;
     private readonly LocalActorOptions _options;
@@ -128,9 +129,11 @@ public sealed class LocalActorCell : IActorRef {
             // cts that is canceled when the channel is completed
             // this is used to cancel the currently executing message when the actor is stopped
             using var cancellationTokenSource = new CancellationTokenSource();
-            _ =_messageChannel.Reader.Completion.ContinueWith(_ => {
-                // ReSharper disable once AccessToDisposedClosure
-                cancellationTokenSource.Cancel();
+            _ = _messageChannel.Reader.Completion.ContinueWith(_ => {
+                try {
+                    // ReSharper disable once AccessToDisposedClosure
+                    cancellationTokenSource.Cancel();
+                } catch(ObjectDisposedException) { }
             }, TaskContinuationOptions.ExecuteSynchronously);
             await foreach (var letter in _messageChannel.Reader.ReadAllAsync(CancellationToken.None)) {
                 using var messageCts = CancellationTokenSource.CreateLinkedTokenSource(

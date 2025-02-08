@@ -8,11 +8,12 @@ public static class ApplicationServiceExtensions {
     public static IServiceCollection AddApplicationServices(this IServiceCollection services) {
         services
             .AddActorSystem()
-            .MapActor<ChatRoomActor>()
-            .MapActor<UserActor>();
+            .MapActor<ChatRoomManagementActor>()
+            .MapActor<UserManagementActor>();
         services.AddScoped<ChatRoomService>();
         services.AddScoped<ChatRoomClient>();
-        services.AddScoped<UserService>();
+        services.AddScoped<ChatRoomManagementService>();
+        services.AddScoped<UserManagementService>();
         services.AddScoped<UserClient>();
         return services;
     }

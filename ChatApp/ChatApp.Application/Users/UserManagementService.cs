@@ -1,5 +1,5 @@
+using ChatApp.Application.Common;
 using ChatApp.Application.Domain.Users;
-using ChatApp.Common;
 using Microsoft.Extensions.Logging;
 
 namespace ChatApp.Application.Users;
@@ -8,14 +8,14 @@ public sealed class UserState {
     public Dictionary<int, User> Users { get; init; } = new Dictionary<int, User>();
 }
 
-public sealed class UserService {
-    private readonly ILogger<UserService> _logger;
+public sealed class UserManagementService {
+    private readonly ILogger<UserManagementService> _logger;
     private readonly IStorage<UserState> _storage;
 
     private UserState State => _storage.State;
     private Dictionary<int, User> Users => State.Users;
 
-    public UserService(ILogger<UserService> logger, IStorage<UserState> storage) {
+    public UserManagementService(ILogger<UserManagementService> logger, IStorage<UserState> storage) {
         _logger = logger;
         _storage = storage;
     }

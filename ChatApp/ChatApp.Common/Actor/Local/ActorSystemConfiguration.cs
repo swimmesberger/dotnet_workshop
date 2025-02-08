@@ -7,15 +7,15 @@ public sealed class ActorSystemConfiguration {
     public IReadOnlyList<ActorConfiguration> RegisteredActors => _registeredActors;
     public IReadOnlyList<Type> RegisteredActorTypes => RegisteredActors.Select(x => x.ActorType).ToList();
 
-    public ActorSystemConfiguration RegisterActor<TActor>(ActorOptions? options = null) where TActor : IActor {
+    public ActorSystemConfiguration RegisterActor<TActor>(LocalActorOptions? options = null) where TActor : IActor {
         RegisterActor(typeof(TActor), options);
         return this;
     }
 
-    public ActorSystemConfiguration RegisterActor(Type actorType, ActorOptions? options = null) {
+    public ActorSystemConfiguration RegisterActor(Type actorType, LocalActorOptions? options = null) {
         _registeredActors.Add(new ActorConfiguration {
             ActorType = actorType,
-            Options = options ?? new ActorOptions(),
+            Options = options ?? new LocalActorOptions(),
         });
         return this;
     }

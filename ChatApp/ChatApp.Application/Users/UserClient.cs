@@ -6,7 +6,7 @@ namespace ChatApp.Application.Users;
 public sealed class UserClient {
     private readonly IActorRef _actorRef;
 
-    public UserClient(IRequiredActor<UserActor> actor) {
+    public UserClient(IRequiredActor<UserManagementActor> actor) {
         _actorRef = actor.ActorRef;
     }
 

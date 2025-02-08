@@ -1,30 +1,26 @@
-﻿namespace ChatApp.Common.Actor.Local;
+﻿namespace ChatApp.Application.Common;
 
-public sealed class InMemoryStorage<T> : IStorage<T> {
-    private T _internalState;
+public sealed class InMemoryStorage<T> : IStorage<T> where T: class {
+    private T? _savedState;
     public bool RecordExists { get; private set; }
 
-    public T State { get; set; }
-
-    public InMemoryStorage() {
-        _internalState = Activator.CreateInstance<T>();
-        State = _internalState;
-    }
+    public T? State { get; set; }
 
     public ValueTask ReadStateAsync(CancellationToken cancellationToken = default) {
-        State = _internalState;
+        State = _savedState;
         return ValueTask.CompletedTask;
     }
 
     public ValueTask SaveStateAsync(CancellationToken cancellationToken = default) {
-        _internalState = State;
+        _savedState = State;
         RecordExists = true;
         return ValueTask.CompletedTask;
     }
 
     public ValueTask ClearStateAsync(CancellationToken cancellationToken = default) {
-        _internalState = default!;
+        _savedState = null;
         RecordExists = false;
+        State = _savedState;
         return ValueTask.CompletedTask;
     }
 }

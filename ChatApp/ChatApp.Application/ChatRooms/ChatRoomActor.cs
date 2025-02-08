@@ -13,29 +13,30 @@ public sealed class ChatRoomActor : IActor {
     public async ValueTask OnLetter(Envelope letter) {
         try {
             switch (letter.Body) {
-                case CreateChatRoomCommand createCommand:
-                    var createdChatRoom = await _chatRoomService.CreateChatRoomAsync(createCommand.Name, letter.CancellationToken);
-                    letter.Sender.Tell(new CreateChatRoomCommand.Reply {
-                        State = createdChatRoom
-                    });
+                case InitiateCommand or PassivateCommand:
+                    letter.Sender.Tell(SuccessReply.Instance);
                     break;
-                case GetAllChatRoomsQuery:
-                    var queriedChatRooms = await _chatRoomService.GetAllChatRoomsAsync(letter.CancellationToken);
-                    letter.Sender.Tell(new GetAllChatRoomsQuery.Reply {
-                        State = queriedChatRooms
-                    });
+                case InitializeChatRoomCommand initializeCommand:
+                    await _chatRoomService.InitializeAsync(initializeCommand.State, letter.CancellationToken);
+                    letter.Sender.Tell(SuccessReply.Instance);
                     break;
-                case GetChatRoomByIdQuery getQuery:
-                    var queriedChatRoom = await _chatRoomService.GetChatRoomByIdAsync(getQuery.Id, letter.CancellationToken);
-                    letter.Sender.Tell(new GetChatRoomByIdQuery.Reply {
-                        State = queriedChatRoom
-                    });
-                    break;
-                case SendMessageCommand sendMessageCommand:
-                    var message = await _chatRoomService.SendMessageAsync(sendMessageCommand.ChatRoomId, sendMessageCommand.SenderUserId,
+                case SendChatRoomMessageCommand sendMessageCommand:
+                    var message = await _chatRoomService.SendMessageAsync(sendMessageCommand.SenderUserId,
                         sendMessageCommand.Content, letter.CancellationToken);
-                    letter.Sender.Tell(new SendMessageCommand.Reply {
+                    letter.Sender.Tell(new SendChatRoomMessageCommand.Reply {
                         State = message
+                    });
+                    break;
+                case GetAllChatRoomMessagesQuery:
+                    var messages = await _chatRoomService.GetAllMessagesAsync(letter.CancellationToken);
+                    letter.Sender.Tell(new GetAllChatRoomMessagesQuery.Reply {
+                        State = messages
+                    });
+                    break;
+                case GetChatRoomQuery:
+                    var queriedChatRoom = await _chatRoomService.GetAsync(letter.CancellationToken);
+                    letter.Sender.Tell(new GetChatRoomQuery.Reply {
+                        State = queriedChatRoom
                     });
                     break;
                 default:
@@ -49,30 +50,7 @@ public sealed class ChatRoomActor : IActor {
     }
 }
 
-public sealed record CreateChatRoomCommand : IRequest<ChatRoom, CreateChatRoomCommand.Reply> {
-    public required string Name { get; init; }
-
-    public sealed class Reply : IReply<ChatRoom> {
-        public required ChatRoom State { get; init; }
-    }
-}
-
-public sealed record GetAllChatRoomsQuery : IRequest<List<ChatRoom>, GetAllChatRoomsQuery.Reply> {
-    public sealed class Reply : IReply<List<ChatRoom>> {
-        public required List<ChatRoom> State { get; init; }
-    }
-}
-
-public sealed record GetChatRoomByIdQuery : IRequest<ChatRoom?, GetChatRoomByIdQuery.Reply> {
-    public required int Id { get; init; }
-
-    public sealed class Reply : IReply<ChatRoom?> {
-        public required ChatRoom? State { get; init; }
-    }
-}
-
-public sealed class SendMessageCommand : IRequest<ChatMessage, SendMessageCommand.Reply> {
-    public required int ChatRoomId { get; init; }
+public sealed class SendChatRoomMessageCommand : IRequest<ChatMessage, SendChatRoomMessageCommand.Reply> {
     public required int SenderUserId { get; init; }
     public required string Content { get; init; }
 
@@ -82,10 +60,18 @@ public sealed class SendMessageCommand : IRequest<ChatMessage, SendMessageComman
     }
 }
 
-public sealed record GetAllMessageByRoomIdQuery : IRequest<List<ChatMessage>, GetAllMessageByRoomIdQuery.Reply> {
-    public required int ChatRoomId { get; init; }
+public sealed class InitializeChatRoomCommand : IRequest {
+    public required ChatRoom State { get; init; }
+}
 
+public sealed record GetAllChatRoomMessagesQuery : IRequest<List<ChatMessage>, GetAllChatRoomMessagesQuery.Reply> {
     public sealed class Reply : IReply<List<ChatMessage>> {
         public required List<ChatMessage> State { get; init; }
+    }
+}
+
+public sealed record GetChatRoomQuery : IRequest<ChatRoom?, GetChatRoomQuery.Reply> {
+    public sealed class Reply : IReply<ChatRoom?> {
+        public required ChatRoom? State { get; init; }
     }
 }

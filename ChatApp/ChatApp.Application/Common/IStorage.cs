@@ -1,7 +1,7 @@
-﻿namespace ChatApp.Common;
+﻿namespace ChatApp.Application.Common;
 
 public interface IStorage<T> {
-    T State { get; set; }
+    T? State { get; set; }
     bool RecordExists { get; }
 
     ValueTask ReadStateAsync(CancellationToken cancellationToken = default);

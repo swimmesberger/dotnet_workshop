@@ -3,11 +3,11 @@ using ChatApp.Common.Actor.Abstractions;
 
 namespace ChatApp.Application.Users;
 
-public sealed class UserActor : IActor {
+public sealed class UserManagementActor : IActor {
     private IActorContext Context { get; }
-    private readonly UserService _userService;
+    private readonly UserManagementService _userService;
 
-    public UserActor(IActorContext context, UserService userService) {
+    public UserManagementActor(IActorContext context, UserManagementService userService) {
         Context = context;
         _userService = userService;
     }
@@ -15,6 +15,9 @@ public sealed class UserActor : IActor {
     public async ValueTask OnLetter(Envelope letter) {
         try {
             switch (letter.Body) {
+                case InitiateCommand or PassivateCommand:
+                    letter.Sender.Tell(SuccessReply.Instance);
+                    break;
                 case CreateUserCommand createCommand:
                     var createdUser = await _userService.CreateUserAsync(createCommand.Username, letter.CancellationToken);
                     letter.Sender.Tell(new CreateUserCommand.Reply {

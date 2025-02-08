@@ -1,4 +1,4 @@
-﻿using ChatApp.Common;
+﻿using ChatApp.Application.Common;
 using ChatApp.Common.Actor.Abstractions;
 using ChatApp.Common.Actor.Local;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,7 +14,7 @@ public static class ActorServiceExtensions {
         services.AddTransient<IActorSystem>(sp => sp.GetRequiredService<LocalActorSystem>());
         services.TryAddTransient<IActorServiceScopeProvider, SimpleActorServiceScopeProvider>();
         services.AddHostedService<LocalActorService>();
-        services.AddScoped(typeof(IStorage<>), typeof(InMemoryStorage<>));
+        services.AddSingleton(typeof(IStorage<>), typeof(InMemoryStorage<>));
         return new ActorServiceBuilder(services);
     }
 }

@@ -1,4 +1,5 @@
-﻿using ChatApp.Common.Actor.Abstractions;
+﻿using System.Diagnostics.CodeAnalysis;
+using ChatApp.Common.Actor.Abstractions;
 
 namespace ChatApp.Common.Actor.Local;
 
@@ -20,6 +21,17 @@ public sealed class LocalActorRegistry {
         }
     }
 
+    public bool TryRemove(IActorRef actorRef, [MaybeNullWhen(false)] out LocalActorCell actorCell) {
+        lock (_actors) {
+            actorCell = _actors.FirstOrDefault(x => x.Equals(actorRef));
+            if (actorCell == null) {
+                return false;
+            }
+            _actors.Remove(actorCell);
+            return true;
+        }
+    }
+
     public List<LocalActorCell> CopyAndClear() {
         lock (_actors) {
             var actors = _actors.ToList();
@@ -32,11 +44,6 @@ public sealed class LocalActorRegistry {
         lock (_actors) {
             _actors.Clear();
         }
-    }
-
-    public IActorRef? GetActor<T>(string? id = null) where T : IActor {
-        // sync access to the registry without actor access
-        return GetActor(typeof(T), id);
     }
 
     public IActorRef? GetActor(Type actorType, string? id = null) {
