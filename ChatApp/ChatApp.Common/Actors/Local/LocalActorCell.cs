@@ -2,6 +2,7 @@
 using System.Threading.Channels;
 using ChatApp.Common.Actors.Abstractions;
 using ChatApp.Common.Actors.Exceptions;
+using Microsoft.Extensions.Logging;
 
 namespace ChatApp.Common.Actors.Local;
 
@@ -10,12 +11,14 @@ public sealed class LocalActorCell : IActorRef {
     public LocalActorContext Context => _actorProvider.Context;
     public ActorConfiguration Configuration => Context.Configuration;
 
+    private ILogger Logger { get; }
     private readonly ILocalActorProvider _actorProvider;
     private readonly LocalActorOptions _options;
     private readonly Channel<Envelope> _messageChannel;
     private readonly TaskCompletionSource _stopped;
 
-    public LocalActorCell(ILocalActorProvider actorProvider, LocalActorOptions? options = null) {
+    public LocalActorCell(ILogger logger, ILocalActorProvider actorProvider, LocalActorOptions? options = null) {
+        Logger = logger;
         _actorProvider = actorProvider;
         _options = options ?? new LocalActorOptions();
         _messageChannel = _options.MailboxCapacity == null ? Channel.CreateUnbounded<Envelope>(new UnboundedChannelOptions {
@@ -143,8 +146,17 @@ public sealed class LocalActorCell : IActorRef {
                 var localLetter = letter with {
                     CancellationToken = messageCts.Token
                 };
-                var actor = await _actorProvider.GetActorInstance(localLetter);
-                await actor.OnLetter(localLetter);
+                if (localLetter.CancellationToken.IsCancellationRequested){
+                    localLetter.Sender.Tell(new FailureReply(new OperationCanceledException("Message was cancelled")), this);
+                    continue;
+                }
+                try {
+                    var actor = await _actorProvider.GetActorInstance(localLetter);
+                    await actor.OnLetter(localLetter);
+                } catch (Exception e) {
+                    Logger.LogError(e, "Error processing message in actor {ActorType} {ActorId}", ActorType, Configuration.Id);
+                    localLetter.Sender.Tell(new FailureReply(e), this);
+                }
             }
         } finally {
             _stopped.TrySetResult();

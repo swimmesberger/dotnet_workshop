@@ -168,7 +168,7 @@ public sealed class LocalActorSystem : IActorSystem {
         };
         var actorFactory = new LocalActorInstanceFactory(actorContext);
         var actorProvider = await CreateActorProviderAsync(actorFactory);
-        var cell = new LocalActorCell(actorProvider, configuration.Options as LocalActorOptions ?? DefaultOptions);
+        var cell = new LocalActorCell(Logger, actorProvider, configuration.Options as LocalActorOptions ?? DefaultOptions);
         actorContext.Self = cell;
         ActorRegistry.Register(cell);
         await cell.StartAsync(cancellationToken);
