@@ -77,8 +77,9 @@ public sealed class LocalActorCell : IActorRef {
 
         using var askCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCancellation.Token);
         options = options with { Sender = new PromiseActorRef(result) };
-        var envelope = CreateEnvelope(message, options, askCts.Token);
-        await WriteLetterAsync(envelope);
+        var letter = CreateEnvelope(message, options, askCts.Token);
+        await WriteLetterAsync(letter);
+        AfterWriteLetter(letter);
         await result.Task;
     }
 
@@ -99,13 +100,16 @@ public sealed class LocalActorCell : IActorRef {
 
         using var askCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCancellation.Token);
         options = options with { Sender = new PromiseActorRef<TResponse>(result) };
-        var envelope = CreateEnvelope(message, options, askCts.Token);
-        await WriteLetterAsync(envelope);
+        var letter = CreateEnvelope(message, options, askCts.Token);
+        await WriteLetterAsync(letter);
+        AfterWriteLetter(letter);
         return await result.Task;
     }
 
     public void Tell(IMessage message, RequestOptions? options = null) {
-        WriteLetter(CreateEnvelope(message, options));
+        var letter = CreateEnvelope(message, options);
+        WriteLetter(letter);
+        AfterWriteLetter(letter);
     }
 
     private void WriteLetter(Envelope letter) {
@@ -127,39 +131,68 @@ public sealed class LocalActorCell : IActorRef {
         }
     }
 
+    private void AfterWriteLetter(Envelope letter) {
+        if (letter.CancellationToken.CanBeCanceled) {
+            letter.Disposables.Add(letter.CancellationToken.Register(() => {
+                letter.Sender.Tell(new FailureReply(new OperationCanceledException("Message was cancelled")), this);
+            }));
+        }
+    }
+
     private async Task ProcessMessagesAsync() {
         try {
-            // cts that is canceled when the channel is completed
-            // this is used to cancel the currently executing message when the actor is stopped
-            using var cancellationTokenSource = new CancellationTokenSource();
-            _ = _messageChannel.Reader.Completion.ContinueWith(_ => {
-                try {
-                    // ReSharper disable once AccessToDisposedClosure
-                    cancellationTokenSource.Cancel();
-                } catch(ObjectDisposedException) { }
-            }, TaskContinuationOptions.ExecuteSynchronously);
-            await foreach (var letter in _messageChannel.Reader.ReadAllAsync(CancellationToken.None)) {
-                using var messageCts = CancellationTokenSource.CreateLinkedTokenSource(
-                    cancellationTokenSource.Token,
-                    letter.CancellationToken
-                );
-                var localLetter = letter with {
-                    CancellationToken = messageCts.Token
-                };
-                if (localLetter.CancellationToken.IsCancellationRequested){
-                    localLetter.Sender.Tell(new FailureReply(new OperationCanceledException("Message was cancelled")), this);
-                    continue;
-                }
-                try {
-                    var actor = await _actorProvider.GetActorInstance(localLetter);
-                    await actor.OnLetter(localLetter);
-                } catch (Exception e) {
-                    Logger.LogError(e, "Error processing message in actor {ActorType} {ActorId}", ActorType, Configuration.Id);
-                    localLetter.Sender.Tell(new FailureReply(e), this);
-                }
-            }
+            await ProcessMessagesImplAsync();
         } finally {
             _stopped.TrySetResult();
+        }
+    }
+
+    private async Task ProcessMessagesImplAsync() {
+        // cts that is canceled when the channel is completed
+        // this is used to cancel the currently executing message when the actor is stopped
+        using var cancellationTokenSource = new CancellationTokenSource();
+        _ = _messageChannel.Reader.Completion.ContinueWith(_ => {
+            try {
+                // ReSharper disable once AccessToDisposedClosure
+                cancellationTokenSource.Cancel();
+            } catch(ObjectDisposedException) { }
+        }, TaskContinuationOptions.ExecuteSynchronously);
+        await foreach (var letter in _messageChannel.Reader.ReadAllAsync(CancellationToken.None)) {
+            try {
+                await ProcessLetterAsync(letter, cancellationTokenSource.Token);
+            } finally {
+                AfterLetterProcessed(letter);
+            }
+        }
+    }
+
+    private async ValueTask ProcessLetterAsync(Envelope letter, CancellationToken cancellationToken = default) {
+        // skip message; replying is done in the token callback after writing to the channel
+        if (letter.CancellationToken.IsCancellationRequested) {
+            return;
+        }
+
+        using var messageCts = CancellationTokenSource.CreateLinkedTokenSource(
+            cancellationToken,
+            letter.CancellationToken
+        );
+        var localLetter = letter with {
+            CancellationToken = messageCts.Token
+        };
+
+        try {
+            var actor = await _actorProvider.GetActorInstance(localLetter);
+            await actor.OnLetter(localLetter);
+        } catch (Exception e) {
+            Logger.LogError(e, "Error processing message in actor {ActorType} {ActorId}", ActorType,
+                Configuration.Id);
+            localLetter.Sender.Tell(new FailureReply(e), this);
+        }
+    }
+
+    private void AfterLetterProcessed(Envelope letter) {
+        foreach(var disp in letter.Disposables) {
+            disp.Dispose();
         }
     }
 

@@ -13,4 +13,5 @@ public sealed record Envelope {
     public IReadOnlyDictionary<string, object> Headers { get; init; } = ReadOnlyDictionary<string, object>.Empty;
     public required IMessage Body { get; init; }
     public CancellationToken CancellationToken { get; init; }
+    public List<IDisposable> Disposables { get; init; } = [];
 }
