@@ -16,5 +16,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ChatApp.Application\ChatApp.Application.csproj" />
+    <ProjectReference Include="..\ChatApp.SourceGenerator\ChatApp.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 </Project>

@@ -1,7 +1,7 @@
 ﻿using ChatApp.Application;
 using ChatApp.Common;
-using ChatApp.Common.Actor.Abstractions;
-using ChatApp.Common.Actor.Local;
+using ChatApp.Common.Actors.Abstractions;
+using ChatApp.Common.Actors.Local;
 
 namespace ChatApp.Api.Infrastructure;
 

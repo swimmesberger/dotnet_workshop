@@ -1,6 +1,6 @@
 ﻿using ChatApp.Application.Common;
 using ChatApp.Application.Domain.ChatRooms;
-using ChatApp.Common.Actor.Abstractions;
+using ChatApp.Common.Actors.Abstractions;
 using Microsoft.Extensions.Logging;
 
 namespace ChatApp.Application.ChatRooms;

@@ -1,5 +1,5 @@
 ﻿using ChatApp.Application.Domain.Users;
-using ChatApp.Common.Actor.Abstractions;
+using ChatApp.Common.Actors.Abstractions;
 
 namespace ChatApp.Application.Users;
 

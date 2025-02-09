@@ -1,6 +1,6 @@
 ﻿using ChatApp.Application.Common;
-using ChatApp.Common.Actor.Abstractions;
-using ChatApp.Common.Actor.Local;
+using ChatApp.Common.Actors.Abstractions;
+using ChatApp.Common.Actors.Local;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 

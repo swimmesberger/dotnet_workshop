@@ -10,6 +10,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Actor\" />
+    <Folder Include="Actors\" />
   </ItemGroup>
 </Project>

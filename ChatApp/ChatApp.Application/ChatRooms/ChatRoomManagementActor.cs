@@ -1,5 +1,5 @@
 ﻿using ChatApp.Application.Domain.ChatRooms;
-using ChatApp.Common.Actor.Abstractions;
+using ChatApp.Common.Actors.Abstractions;
 
 namespace ChatApp.Application.ChatRooms;
 
