@@ -15,7 +15,7 @@ public sealed class LocalActorContext : IActorContext {
     public IActorRef Self { get; set; } = IActorRef.Nobody;
     public Envelope Letter { get; set; } = Envelope.Unknown;
     IEnvelope IActorContext.Letter => Letter;
-    public CancellationToken RequestAborted => Letter?.CancellationToken ?? CancellationToken.None;
+    public CancellationToken RequestAborted { get; set; } = CancellationToken.None;
     public IDictionary<object, object?> Items { get; } = new Dictionary<object, object?>();
 
     internal IActorServiceScopeProvider ActorServiceScopeProvider { get; init; } =
@@ -24,10 +24,8 @@ public sealed class LocalActorContext : IActorContext {
     internal IServiceScope? RequestServiceScope { get; set; }
     public IServiceProvider RequestServices {
         get {
-            if (RequestServiceScope == null && Letter != null) {
-                RequestServiceScope = ActorServiceScopeProvider.GetActorScope(Letter, Configuration.Options!);
-            }
-            return RequestServiceScope?.ServiceProvider ?? EmptyServiceProvider.Instance;
+            RequestServiceScope ??= ActorServiceScopeProvider.GetActorScope(Letter, Configuration.Options!);
+            return RequestServiceScope.ServiceProvider;
         }
     }
 

@@ -175,19 +175,25 @@ public sealed class LocalActorCell : IActorRef {
             return;
         }
 
-        using var messageCts = CancellationTokenSource.CreateLinkedTokenSource(
-            cancellationToken,
-            letter.CancellationToken
-        );
-        Context.Letter = letter with {
-            CancellationToken = messageCts.Token
-        };
+        CancellationTokenSource? messageCts = null;
+        if (letter.CancellationToken.CanBeCanceled) {
+            messageCts = CancellationTokenSource.CreateLinkedTokenSource(
+                cancellationToken,
+                letter.CancellationToken
+            );
+            Context.RequestAborted = messageCts.Token;
+        } else {
+            Context.RequestAborted = cancellationToken;
+        }
+        Context.Letter = letter;
         try {
             await _actorInstance.OnLetter();
         } catch (Exception e) {
             Logger.LogError(e, "Error processing message in actor {ActorType} {ActorId}", ActorType,
                 Configuration.Id);
             Context.Letter.Sender.Tell(new FailureReply(e), this);
+        } finally {
+            messageCts?.Dispose();
         }
     }
 
