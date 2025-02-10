@@ -1,5 +1,6 @@
 ﻿using ChatApp.Application.Domain.Users;
 using ChatApp.Common.Actors.Abstractions;
+using ChatApp.Common.Actors.Local;
 
 namespace ChatApp.Application.Users;
 
@@ -12,37 +13,37 @@ public sealed class UserManagementActor : IActor {
         _userService = userService;
     }
 
-    public async ValueTask OnLetter(Envelope letter) {
+    public async ValueTask OnLetter() {
         try {
-            switch (letter.Body) {
+            switch (Context.Letter.Body) {
                 case InitiateCommand or PassivateCommand:
-                    letter.Sender.Tell(SuccessReply.Instance);
+                    Context.Letter.Sender.Tell(SuccessReply.Instance);
                     break;
                 case CreateUserCommand createCommand:
-                    var createdUser = await _userService.CreateUserAsync(createCommand.Username, letter.CancellationToken);
-                    letter.Sender.Tell(new CreateUserCommand.Reply {
+                    var createdUser = await _userService.CreateUserAsync(createCommand.Username, Context.RequestAborted);
+                    Context.Letter.Sender.Tell(new CreateUserCommand.Reply {
                         State = createdUser
                     }, Context.Self);
                     break;
                 case GetAllUsersQuery:
-                    var queriedUsers = await _userService.GetAllUsersAsync(letter.CancellationToken);
-                    letter.Sender.Tell(new GetAllUsersQuery.Reply {
+                    var queriedUsers = await _userService.GetAllUsersAsync(Context.RequestAborted);
+                    Context.Letter.Sender.Tell(new GetAllUsersQuery.Reply {
                         State = queriedUsers
                     }, Context.Self);
                     break;
                 case GetUserByIdQuery getQuery:
-                    var queriedUser = await _userService.GetUserByIdAsync(getQuery.Id, letter.CancellationToken);
-                    letter.Sender.Tell(new GetUserByIdQuery.Reply {
+                    var queriedUser = await _userService.GetUserByIdAsync(getQuery.Id, Context.RequestAborted);
+                    Context.Letter.Sender.Tell(new GetUserByIdQuery.Reply {
                         State = queriedUser
                     }, Context.Self);
                     break;
                 default:
-                    letter.Sender.Tell(new FailureReply(new ArgumentException("Unhandled message")), Context.Self);
+                    Context.Letter.Sender.Tell(new FailureReply(new ArgumentException("Unhandled message")), Context.Self);
                     break;
                 // Add more cases for other commands as needed
             }
         } catch (Exception ex) {
-            letter.Sender.Tell(new FailureReply(ex), Context.Self);
+            Context.Letter.Sender.Tell(new FailureReply(ex), Context.Self);
         }
     }
 }

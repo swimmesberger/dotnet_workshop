@@ -1,8 +1,9 @@
 using System.Collections.ObjectModel;
+using ChatApp.Common.Actors.Abstractions;
 
-namespace ChatApp.Common.Actors.Abstractions;
+namespace ChatApp.Common.Actors.Local;
 
-public sealed record Envelope {
+public sealed record Envelope : IEnvelope {
     public static readonly Envelope Unknown = new Envelope {
         Sender = IActorRef.Nobody,
         Body = IMessage.Unknown,

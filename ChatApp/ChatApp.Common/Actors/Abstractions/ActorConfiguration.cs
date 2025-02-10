@@ -1,6 +1,6 @@
 ﻿namespace ChatApp.Common.Actors.Abstractions;
 
-public sealed class ActorConfiguration<T> where T : IActor {
+public sealed record ActorConfiguration<T> where T : IActor {
     public Type ActorType => typeof(T);
     public string? Id { get; init; }
     public IActorOptions? Options { get; init; }
@@ -12,7 +12,7 @@ public sealed class ActorConfiguration<T> where T : IActor {
     };
 }
 
-public sealed class ActorConfiguration {
+public sealed record ActorConfiguration {
     public required Type ActorType { get; init; }
     public string? Id { get; init; }
     public IActorOptions? Options { get; init; }

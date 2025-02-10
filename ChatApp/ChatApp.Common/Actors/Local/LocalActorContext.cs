@@ -1,4 +1,5 @@
 ﻿using ChatApp.Common.Actors.Abstractions;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ChatApp.Common.Actors.Local;
 
@@ -12,6 +13,23 @@ public sealed class LocalActorContext : IActorContext {
     public string? Id => Configuration.Id;
     public Type ActorType => Configuration.ActorType;
     public IActorRef Self { get; set; } = IActorRef.Nobody;
+    public Envelope Letter { get; set; } = Envelope.Unknown;
+    IEnvelope IActorContext.Letter => Letter;
+    public CancellationToken RequestAborted => Letter?.CancellationToken ?? CancellationToken.None;
+    public IDictionary<object, object?> Items { get; } = new Dictionary<object, object?>();
+
+    internal IActorServiceScopeProvider ActorServiceScopeProvider { get; init; } =
+        EmptyActorServiceScopeProvider.Instance;
+
+    internal IServiceScope? RequestServiceScope { get; set; }
+    public IServiceProvider RequestServices {
+        get {
+            if (RequestServiceScope == null && Letter != null) {
+                RequestServiceScope = ActorServiceScopeProvider.GetActorScope(Letter, Configuration.Options!);
+            }
+            return RequestServiceScope?.ServiceProvider ?? EmptyServiceProvider.Instance;
+        }
+    }
 
     public ValueTask<IActorRef> GetOrCreateActorAsync<T>(ActorConfiguration<T> configuration, CancellationToken cancellationToken = default) where T : IActor => ActorSystem.GetOrCreateActorAsync(configuration, cancellationToken);
 

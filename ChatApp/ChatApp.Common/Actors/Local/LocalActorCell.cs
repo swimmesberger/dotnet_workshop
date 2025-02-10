@@ -2,34 +2,37 @@
 using System.Threading.Channels;
 using ChatApp.Common.Actors.Abstractions;
 using ChatApp.Common.Actors.Exceptions;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace ChatApp.Common.Actors.Local;
 
 public sealed class LocalActorCell : IActorRef {
-    public Type ActorType => Context.ActorType;
-    public LocalActorContext Context => _actorProvider.Context;
-    public ActorConfiguration Configuration => Context.Configuration;
+    public LocalActorContext Context { get; }
 
     private ILogger Logger { get; }
-    private readonly ILocalActorProvider _actorProvider;
-    private readonly LocalActorOptions _options;
+    private readonly IActor _actorInstance;
+
     private readonly Channel<Envelope> _messageChannel;
     private readonly TaskCompletionSource _stopped;
 
-    public LocalActorCell(ILogger logger, ILocalActorProvider actorProvider, LocalActorOptions? options = null) {
+    public ActorConfiguration Configuration => Context.Configuration;
+    public Type ActorType => Context.ActorType;
+    private LocalActorOptions Options => (Configuration.Options! as LocalActorOptions)!;
+
+    public LocalActorCell(ILogger logger, IActor actorInstance, LocalActorContext context) {
         Logger = logger;
-        _actorProvider = actorProvider;
-        _options = options ?? new LocalActorOptions();
-        _messageChannel = _options.MailboxCapacity == null ? Channel.CreateUnbounded<Envelope>(new UnboundedChannelOptions {
+        _actorInstance = actorInstance;
+        Context = context;
+        _messageChannel = Options.MailboxCapacity == null ? Channel.CreateUnbounded<Envelope>(new UnboundedChannelOptions {
             SingleReader = true,
             SingleWriter = false,
             AllowSynchronousContinuations = false
-        }) : Channel.CreateBounded<Envelope>(new BoundedChannelOptions(_options.MailboxCapacity.Value) {
+        }) : Channel.CreateBounded<Envelope>(new BoundedChannelOptions(Options.MailboxCapacity.Value) {
             SingleReader = true,
             SingleWriter = false,
             AllowSynchronousContinuations = false,
-            FullMode = _options.BackpressureBehaviour switch {
+            FullMode = Options.BackpressureBehaviour switch {
                 BackpressureBehaviour.Fail => BoundedChannelFullMode.Wait,
                 BackpressureBehaviour.Wait => BoundedChannelFullMode.Wait,
                 BackpressureBehaviour.DropNewest => BoundedChannelFullMode.DropNewest,
@@ -121,7 +124,7 @@ public sealed class LocalActorCell : IActorRef {
     }
 
     private ValueTask WriteLetterAsync(Envelope letter) {
-        if (_options.BackpressureBehaviour == BackpressureBehaviour.Fail) {
+        if (Options.BackpressureBehaviour == BackpressureBehaviour.Fail) {
             if (!_messageChannel.Writer.TryWrite(letter)) {
                 letter.Sender.Tell(new FailureReply(new BackpressureException("Message channel is full")), this);
             }
@@ -161,7 +164,7 @@ public sealed class LocalActorCell : IActorRef {
             try {
                 await ProcessLetterAsync(letter, cancellationTokenSource.Token);
             } finally {
-                AfterLetterProcessed(letter);
+                await AfterLetterProcessed(letter);
             }
         }
     }
@@ -176,23 +179,26 @@ public sealed class LocalActorCell : IActorRef {
             cancellationToken,
             letter.CancellationToken
         );
-        var localLetter = letter with {
+        Context.Letter = letter with {
             CancellationToken = messageCts.Token
         };
-
         try {
-            var actor = await _actorProvider.GetActorInstance(localLetter);
-            await actor.OnLetter(localLetter);
+            await _actorInstance.OnLetter();
         } catch (Exception e) {
             Logger.LogError(e, "Error processing message in actor {ActorType} {ActorId}", ActorType,
                 Configuration.Id);
-            localLetter.Sender.Tell(new FailureReply(e), this);
+            Context.Letter.Sender.Tell(new FailureReply(e), this);
         }
     }
 
-    private void AfterLetterProcessed(Envelope letter) {
+    private async ValueTask AfterLetterProcessed(Envelope letter) {
         foreach(var disp in letter.Disposables) {
             disp.Dispose();
+        }
+
+        if (Context.RequestServiceScope != null) {
+            await new AsyncServiceScope(Context.RequestServiceScope).DisposeAsync();
+            Context.RequestServiceScope = null;
         }
     }
 

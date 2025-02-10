@@ -4,54 +4,56 @@ using ChatApp.Common.Actors.Abstractions;
 namespace ChatApp.Application.ChatRooms;
 
 public sealed class ChatRoomActor : IActor {
+    private IActorContext Context { get; }
     private readonly ChatRoomService _chatRoomService;
 
-    public ChatRoomActor(ChatRoomService chatRoomService) {
+    public ChatRoomActor(IActorContext context, ChatRoomService chatRoomService) {
+        Context = context;
         _chatRoomService = chatRoomService;
     }
 
-    public async ValueTask OnLetter(Envelope letter) {
+    public async ValueTask OnLetter() {
         try {
-            switch (letter.Body) {
+            switch (Context.Letter.Body) {
                 case InitiateCommand or PassivateCommand:
-                    letter.Sender.Tell(SuccessReply.Instance);
+                    Context.Letter.Sender.Tell(SuccessReply.Instance);
                     break;
                 case InitializeChatRoomCommand initializeCommand:
-                    await _chatRoomService.InitializeAsync(initializeCommand.State, letter.CancellationToken);
-                    letter.Sender.Tell(SuccessReply.Instance);
+                    await _chatRoomService.InitializeAsync(initializeCommand.State, Context.RequestAborted);
+                    Context.Letter.Sender.Tell(SuccessReply.Instance);
                     break;
                 case JoinChatRoomCommand joinCommand:
-                    var joinedChatRoom = await _chatRoomService.JoinAsync(joinCommand.UserId, letter.CancellationToken);
-                    letter.Sender.Tell(new JoinChatRoomCommand.Reply {
+                    var joinedChatRoom = await _chatRoomService.JoinAsync(joinCommand.UserId, Context.RequestAborted);
+                    Context.Letter.Sender.Tell(new JoinChatRoomCommand.Reply {
                         State = joinedChatRoom
                     });
                     break;
                 case SendChatRoomMessageCommand sendMessageCommand:
                     var message = await _chatRoomService.SendMessageAsync(sendMessageCommand.SenderUserId,
-                        sendMessageCommand.Content, letter.CancellationToken);
-                    letter.Sender.Tell(new SendChatRoomMessageCommand.Reply {
+                        sendMessageCommand.Content, Context.RequestAborted);
+                    Context.Letter.Sender.Tell(new SendChatRoomMessageCommand.Reply {
                         State = message
                     });
                     break;
                 case GetAllChatRoomMessagesQuery:
-                    var messages = await _chatRoomService.GetAllMessagesAsync(letter.CancellationToken);
-                    letter.Sender.Tell(new GetAllChatRoomMessagesQuery.Reply {
+                    var messages = await _chatRoomService.GetAllMessagesAsync(Context.RequestAborted);
+                    Context.Letter.Sender.Tell(new GetAllChatRoomMessagesQuery.Reply {
                         State = messages
                     });
                     break;
                 case GetChatRoomQuery:
-                    var queriedChatRoom = await _chatRoomService.GetAsync(letter.CancellationToken);
-                    letter.Sender.Tell(new GetChatRoomQuery.Reply {
+                    var queriedChatRoom = await _chatRoomService.GetAsync(Context.RequestAborted);
+                    Context.Letter.Sender.Tell(new GetChatRoomQuery.Reply {
                         State = queriedChatRoom
                     });
                     break;
                 default:
-                    letter.Sender.Tell(new FailureReply(new ArgumentException("Unhandled message")));
+                    Context.Letter.Sender.Tell(new FailureReply(new ArgumentException("Unhandled message")));
                     break;
                 // Add more cases for other commands as needed
             }
         } catch (Exception ex) {
-            letter.Sender.Tell(new FailureReply(ex));
+            Context.Letter.Sender.Tell(new FailureReply(ex));
         }
     }
 }

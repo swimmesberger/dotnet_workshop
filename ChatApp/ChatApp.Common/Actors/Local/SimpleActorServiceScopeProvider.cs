@@ -10,5 +10,5 @@ public sealed class SimpleActorServiceScopeProvider : IActorServiceScopeProvider
         _serviceScopeFactory = serviceScopeFactory;
     }
 
-    public IServiceScope GetActorScope(Envelope letter, IActorOptions? options = null) => _serviceScopeFactory.CreateScope();
+    public IServiceScope GetActorScope(IEnvelope letter, IActorOptions options) => _serviceScopeFactory.CreateScope();
 }

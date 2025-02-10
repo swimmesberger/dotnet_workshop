@@ -157,18 +157,18 @@ public class GrainIncrementalSourceGenerator : IIncrementalGenerator {
                 var loweCaseName = x.Name.Substring(0, 1).ToLowerInvariant() + x.Name.Substring(1);
                 var callParams = string.Join(", ", x.DataParameters.Select(y => $"{loweCaseName}.{y.AsMemberName}"));
                 if (x.CancellationTokenParameter != null) {
-                    callParams += ", letter.CancellationToken";
+                    callParams += ", Context.RequestAborted";
                 }
 
                 if (x.ReturnType == null) {
                     return $@"                case {x.Name}Command {loweCaseName}:
                     await _grain.{x.OriginalName}({callParams});
-                    letter.Sender.Tell(SuccessReply.Instance);
+                    Context.Letter.Sender.Tell(SuccessReply.Instance);
                     break;";
                 }
                 return $@"                case {x.Name}Command {loweCaseName}:
                     var {loweCaseName}Result = await _grain.{x.OriginalName}({callParams});
-                    letter.Sender.Tell(new {x.Name}Command.Reply() {{
+                    Context.Letter.Sender.Tell(new {x.Name}Command.Reply() {{
                         State = {loweCaseName}Result
                     }});
                     break;";
@@ -180,17 +180,22 @@ public class GrainIncrementalSourceGenerator : IIncrementalGenerator {
                     methodParams += $", {CancellationTokenType} {x.CancellationTokenParameter.Name} = default";
                 }
 
+                string ctsParam = string.Empty;
+                if (x.CancellationTokenParameter != null) {
+                    ctsParam = $", cancellationToken: {x.CancellationTokenParameter.Name}";
+                }
+
                 if (x.ReturnTypeName != null) {
                     return $@"    public async ValueTask<{x.ReturnTypeName}> {x.OriginalName}({methodParams}) {{
         return await _actor.Ask(new {x.Name}Command() {{
 {string.Join(",\n", x.DataParameters.Select(y => $"            {y.AsMemberName} = {y.Name}"))}
-        }}, cancellationToken: {x.CancellationTokenParameter?.Name ?? "default"});
+        }}{ctsParam});
     }}";
                 }
                 return $@"    public async ValueTask {x.OriginalName}({methodParams}) {{
         await _actor.Ask(new {x.Name}Command() {{
 {string.Join(",\n", x.DataParameters.Select(y => $"            {y.AsMemberName} = {y.Name}"))}
-        }}, cancellationToken: {x.CancellationTokenParameter?.Name ?? "default"});
+        }}{ctsParam});
     }}";
             });
 
@@ -219,27 +224,29 @@ public sealed class {className}Client {{
 }}
 
 public sealed class {className}Actor : IActor {{
+    private IActorContext Context {{ get; }}
     private readonly {originalClassName} _grain;
 
     public {className}Actor(IActorContext context) {{
+        Context = context;
         _grain = new {originalClassName}();
     }}
 
-    public async ValueTask OnLetter(Envelope letter) {{
+    public async ValueTask OnLetter() {{
         try {{
-            switch (letter.Body) {{
+            switch (Context.Letter.Body) {{
                 case InitiateCommand:
-                    await ((IGrain)_grain).OnActivate(letter.CancellationToken);
-                    letter.Sender.Tell(SuccessReply.Instance);
+                    await ((IGrain)_grain).OnActivate(Context.RequestAborted);
+                    Context.Letter.Sender.Tell(SuccessReply.Instance);
                     break;
                 case PassivateCommand:
-                    await ((IGrain)_grain).OnDeactivate(letter.CancellationToken);
-                    letter.Sender.Tell(SuccessReply.Instance);
+                    await ((IGrain)_grain).OnDeactivate(Context.RequestAborted);
+                    Context.Letter.Sender.Tell(SuccessReply.Instance);
                     break;
 {string.Join("\n", commandSwitch)}
             }}
         }} catch (Exception ex) {{
-            letter.Sender.Tell(new FailureReply(ex));
+            Context.Letter.Sender.Tell(new FailureReply(ex));
         }}
     }}
 }}

@@ -162,13 +162,21 @@ public sealed class LocalActorSystem : IActorSystem {
 
     internal async ValueTask<LocalActorCell> CreateActorImplAsync(ActorConfiguration configuration, CancellationToken cancellationToken = default) {
         Logger.LogDebug("Starting actor {ActorType} {ActorId}", configuration.ActorType, configuration.Id);
+        if (configuration.Options == null) {
+            configuration = configuration with {
+                Options = configuration.Options as LocalActorOptions ?? DefaultOptions
+            };
+        }
         var actorContext = new LocalActorContext {
             Configuration = configuration,
-            ActorSystem = this
+            ActorSystem = this,
+            ActorServiceScopeProvider = _serviceScopeProvider
         };
         var actorFactory = new LocalActorInstanceFactory(actorContext);
-        var actorProvider = await CreateActorProviderAsync(actorFactory);
-        var cell = new LocalActorCell(Logger, actorProvider, configuration.Options as LocalActorOptions ?? DefaultOptions);
+
+        await using var scope = _serviceScopeProvider.GetActorAsyncScope(Envelope.Unknown, configuration.Options);
+        var actorInstance = actorFactory.CreateActor(scope.ServiceProvider);
+        var cell = new LocalActorCell(Logger, actorInstance, actorContext);
         actorContext.Self = cell;
         ActorRegistry.Register(cell);
         await cell.StartAsync(cancellationToken);

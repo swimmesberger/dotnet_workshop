@@ -33,7 +33,7 @@ public static class ActorWebExtensions {
             _simpleProvider = new SimpleActorServiceScopeProvider(serviceScopeFactory);
         }
 
-        public IServiceScope GetActorScope(Envelope letter, IActorOptions? options = null) {
+        public IServiceScope GetActorScope(IEnvelope letter, IActorOptions options) {
             if (letter.Headers.TryGetValue(RequestServiceKey, out object? scope) && scope is IServiceProvider serviceProvider) {
                 // discard dispose functionality to prevent double dispose
                 return new DelegateServiceScope(serviceProvider);

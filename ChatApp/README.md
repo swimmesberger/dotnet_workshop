@@ -7,3 +7,4 @@ TODO:
 * Add support for actor hierarchy
 * Add support for actor supervision
 * Do not create service scopes based on the class constructor but use FromServices attribute for singleton state without abstraction??
+* Write source generator wrapper around protoactor-dotnet??

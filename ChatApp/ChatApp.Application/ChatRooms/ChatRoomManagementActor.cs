@@ -1,41 +1,44 @@
 ﻿using ChatApp.Application.Domain.ChatRooms;
 using ChatApp.Common.Actors.Abstractions;
+using ChatApp.Common.Actors.Local;
 
 namespace ChatApp.Application.ChatRooms;
 
 public sealed class ChatRoomManagementActor : IActor {
+    private IActorContext Context { get; }
     private readonly ChatRoomManagementService _chatRoomService;
 
-    public ChatRoomManagementActor(ChatRoomManagementService chatRoomService) {
+    public ChatRoomManagementActor(IActorContext context, ChatRoomManagementService chatRoomService) {
+        Context = context;
         _chatRoomService = chatRoomService;
     }
 
-    public async ValueTask OnLetter(Envelope letter) {
+    public async ValueTask OnLetter() {
         try {
-            switch (letter.Body) {
+            switch (Context.Letter.Body) {
                 case InitiateCommand:
                 case PassivateCommand:
-                    letter.Sender.Tell(SuccessReply.Instance);
+                    Context.Letter.Sender.Tell(SuccessReply.Instance);
                     break;
                 case CreateChatRoomCommand createCommand:
-                    var createdChatRoom = await _chatRoomService.CreateChatRoomAsync(createCommand.Name, letter.CancellationToken);
-                    letter.Sender.Tell(new CreateChatRoomCommand.Reply {
+                    var createdChatRoom = await _chatRoomService.CreateChatRoomAsync(createCommand.Name, Context.RequestAborted);
+                    Context.Letter.Sender.Tell(new CreateChatRoomCommand.Reply {
                         State = createdChatRoom
                     });
                     break;
                 case GetAllChatRoomIdsQuery:
-                    var queriedChatRooms = await _chatRoomService.GetAllChatRoomIdsAsync(letter.CancellationToken);
-                    letter.Sender.Tell(new GetAllChatRoomIdsQuery.Reply {
+                    var queriedChatRooms = await _chatRoomService.GetAllChatRoomIdsAsync(Context.RequestAborted);
+                    Context.Letter.Sender.Tell(new GetAllChatRoomIdsQuery.Reply {
                         State = queriedChatRooms
                     });
                     break;
                 default:
-                    letter.Sender.Tell(new FailureReply(new ArgumentException("Unhandled message")));
+                    Context.Letter.Sender.Tell(new FailureReply(new ArgumentException("Unhandled message")));
                     break;
                 // Add more cases for other commands as needed
             }
         } catch (Exception ex) {
-            letter.Sender.Tell(new FailureReply(ex));
+            Context.Letter.Sender.Tell(new FailureReply(ex));
         }
     }
 }
